@@ -1,0 +1,40 @@
+{
+  "slug": "barnards-star",
+  "title": "Barnard's Star",
+  "ra": 269.452077,
+  "dec": 4.693365,
+  "note": "Cutouts centered on the proper-motion-corrected position. Detector D6 (4.4 to 5.0 microns).",
+  "detector": "SPHEREx-D6",
+  "frames": [
+    {
+      "file": "frame_00.png",
+      "date": "2025-08-15",
+      "obs_id": "2025W33_2C_0321_1"
+    },
+    {
+      "file": "frame_01.png",
+      "date": "2025-08-25",
+      "obs_id": "2025W35_1A_0008_2"
+    },
+    {
+      "file": "frame_02.png",
+      "date": "2026-03-19",
+      "obs_id": "2026W12_1A_0610_3"
+    },
+    {
+      "file": "frame_03.png",
+      "date": "2026-04-10",
+      "obs_id": "2026W15_2A_0137_1"
+    },
+    {
+      "file": "frame_04.png",
+      "date": "2026-08-17",
+      "obs_id": "2026W34_1A_0176_2"
+    },
+    {
+      "file": "frame_05.png",
+      "date": "2026-09-20",
+      "obs_id": "2026W38_2A_0562_1"
+    }
+  ]
+}

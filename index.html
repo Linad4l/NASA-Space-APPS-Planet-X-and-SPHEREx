@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SPHEREx Blink</title>
+<meta name="description" content="Blink through SPHEREx infrared images of a patch of sky to spot moving objects.">
+<style>
+  :root {
+    --bg: #0b0f17;
+    --card: #141b29;
+    --ink: #e8edf6;
+    --muted: #93a0b8;
+    --accent: #6ea8ff;
+    --line: #243049;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  header, main, footer { max-width: 960px; margin: 0 auto; padding-left: 16px; padding-right: 16px; }
+  header { padding-top: 24px; padding-bottom: 8px; }
+  h1 { margin: 0 0 4px; font-size: 1.7rem; }
+  header p { margin: 0; color: var(--muted); }
+  main {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    padding-top: 12px;
+    padding-bottom: 24px;
+  }
+  @media (max-width: 760px) { main { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .viewer { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .stage {
+    width: 100%;
+    max-width: 540px;
+    aspect-ratio: 1 / 1;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .stage img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    image-rendering: pixelated;
+    display: block;
+  }
+  .label { font-variant-numeric: tabular-nums; color: var(--ink); min-height: 1.5em; text-align: center; }
+  .controls { display: flex; gap: 8px; }
+  button {
+    background: #1d2840;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font: inherit;
+    cursor: pointer;
+  }
+  button:hover { border-color: var(--accent); }
+  button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  .viewer input[type=range] { max-width: 540px; }
+  .side { display: flex; flex-direction: column; gap: 12px; }
+  .side label { color: var(--muted); font-size: 0.9rem; }
+  select {
+    width: 100%;
+    background: #1d2840;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px;
+    font: inherit;
+  }
+  .row { display: grid; grid-template-columns: 90px 1fr; align-items: center; gap: 8px; }
+  .check { display: flex; align-items: center; gap: 8px; }
+  dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 0.9rem; }
+  dt { color: var(--muted); }
+  dd { margin: 0; font-variant-numeric: tabular-nums; }
+  .muted { color: var(--muted); font-size: 0.9rem; margin: 0; }
+  .how { max-width: 960px; margin: 0 auto 24px; padding: 0 16px; }
+  .how .card h2 { margin: 0 0 8px; font-size: 1.1rem; }
+  .how .card p { margin: 0 0 8px; color: var(--muted); }
+  footer { padding-top: 8px; padding-bottom: 32px; color: var(--muted); font-size: 0.85rem; }
+  footer p { margin: 0 0 8px; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>SPHEREx Blink</h1>
+  <p>Flip through infrared images of the same patch of sky, taken months apart. Anything that moves jumps between frames.</p>
+</header>
+
+<main>
+  <section class="card viewer" aria-label="Image viewer">
+    <div class="stage"><img id="frame" alt="SPHEREx sky image cutout"></div>
+    <div class="label" id="label" aria-live="polite">Loading...</div>
+    <div class="controls">
+      <button id="prev" type="button" aria-label="Previous frame">&#9664; Back</button>
+      <button id="play" type="button" aria-label="Play or pause">Pause</button>
+      <button id="next" type="button" aria-label="Next frame">Next &#9654;</button>
+    </div>
+    <input id="scrub" type="range" min="0" max="0" value="0" aria-label="Choose a frame">
+  </section>
+
+  <aside class="card side" aria-label="Controls">
+    <div>
+      <label for="target">Target</label>
+      <select id="target"></select>
+    </div>
+    <div class="row">
+      <label for="speed">Speed</label>
+      <input id="speed" type="range" min="150" max="1500" step="50" value="600">
+    </div>
+    <div class="row">
+      <label for="bright">Brightness</label>
+      <input id="bright" type="range" min="0.5" max="2.5" step="0.1" value="1">
+    </div>
+    <div class="row">
+      <label for="contrast">Contrast</label>
+      <input id="contrast" type="range" min="0.5" max="2.5" step="0.1" value="1">
+    </div>
+    <label class="check"><input type="checkbox" id="invert"> Invert (dark stars on light)</label>
+    <button id="copy" type="button">Copy link to this view</button>
+    <dl id="details"></dl>
+    <p class="muted" id="note"></p>
+  </aside>
+</main>
+
+<div class="how">
+  <div class="card">
+    <h2>How to use this</h2>
+    <p>Press Play and watch one spot in the sky. Stars that stay put stay put. A nearby star, brown dwarf, comet or asteroid shifts a little from frame to frame.</p>
+    <p>Use Back and Next, or the left and right arrow keys, to step through one frame at a time. The space bar pauses and plays. Raise the brightness or contrast to see faint things, or invert the picture.</p>
+    <p>Each frame is a small cutout from one SPHEREx exposure. The date above the picture is when that exposure was taken. The cutouts are centered on where the target is expected to be on the observation dates.</p>
+  </div>
+</div>
+
+<footer>
+  <p>This publication makes use of data products from the Spectro-Photometer for the History of the Universe, Epoch of Reionization and Ices Explorer (SPHEREx), which is a joint project of the Jet Propulsion Laboratory and the California Institute of Technology, and is funded by the National Aeronautics and Space Administration.</p>
+  <p>Images come from the <a href="https://irsa.ipac.caltech.edu/Missions/spherex.html">NASA/IPAC Infrared Science Archive (IRSA)</a>. Built for the NASA Space Apps Challenge 2026.</p>
+</footer>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var S = { metas: [], meta: null, imgs: [], i: 0, timer: null, playing: false };
+
+  function getJSON(url) {
+    return fetch(url, { cache: "no-cache" }).then(function (r) {
+      if (!r.ok) { throw new Error(url + " (" + r.status + ")"); }
+      return r.json();
+    });
+  }
+
+  function applyFilter() {
+    var f = "brightness(" + $("bright").value + ") contrast(" + $("contrast").value + ")";
+    if ($("invert").checked) { f += " invert(1)"; }
+    $("frame").style.filter = f;
+  }
+
+  function show(i) {
+    if (!S.meta) { return; }
+    var n = S.meta.frames.length;
+    S.i = ((i % n) + n) % n;
+    var f = S.meta.frames[S.i];
+    $("frame").src = S.imgs[S.i].src;
+    $("label").textContent = f.date + "   (frame " + (S.i + 1) + " of " + n + ")";
+    $("scrub").value = S.i;
+  }
+
+  function stop() {
+    if (S.timer) { clearInterval(S.timer); }
+    S.timer = null;
+    S.playing = false;
+    $("play").textContent = "Play";
+  }
+
+  function start() {
+    stop();
+    S.playing = true;
+    $("play").textContent = "Pause";
+    S.timer = setInterval(function () { show(S.i + 1); }, Number($("speed").value));
+  }
+
+  function updateURL() {
+    try {
+      var p = new URLSearchParams();
+      p.set("target", S.meta.slug);
+      p.set("speed", $("speed").value);
+      history.replaceState(null, "", "?" + p.toString());
+    } catch (e) { /* ignore, for example when opened as a local file */ }
+  }
+
+  function fillDetails(m) {
+    var dates = m.frames.map(function (f) { return f.date; }).sort();
+    var rows = [
+      ["Center RA", Number(m.ra).toFixed(4) + " deg"],
+      ["Center Dec", Number(m.dec).toFixed(4) + " deg"],
+      ["Detector", m.detector || "unknown"],
+      ["Frames", String(m.frames.length)],
+      ["From", dates[0]],
+      ["To", dates[dates.length - 1]]
+    ];
+    var dl = $("details");
+    dl.innerHTML = "";
+    rows.forEach(function (r) {
+      var dt = document.createElement("dt"); dt.textContent = r[0];
+      var dd = document.createElement("dd"); dd.textContent = r[1];
+      dl.appendChild(dt); dl.appendChild(dd);
+    });
+    $("note").textContent = m.note || "";
+  }
+
+  function loadTarget(slug) {
+    var m = S.metas.filter(function (x) { return x.slug === slug; })[0] || S.metas[0];
+    S.meta = m;
+    stop();
+    $("label").textContent = "Loading frames...";
+    var loads = m.frames.map(function (f) {
+      return new Promise(function (resolve, reject) {
+        var im = new Image();
+        im.onload = function () { resolve(im); };
+        im.onerror = function () { reject(new Error("could not load " + f.file)); };
+        im.src = "data/" + m.slug + "/" + f.file;
+      });
+    });
+    return Promise.all(loads).then(function (imgs) {
+      S.imgs = imgs;
+      $("scrub").max = m.frames.length - 1;
+      fillDetails(m);
+      applyFilter();
+      show(0);
+      start();
+      updateURL();
+    });
+  }
+
+  function wire() {
+    $("play").addEventListener("click", function () { if (S.playing) { stop(); } else { start(); } });
+    $("next").addEventListener("click", function () { stop(); show(S.i + 1); });
+    $("prev").addEventListener("click", function () { stop(); show(S.i - 1); });
+    $("scrub").addEventListener("input", function () { stop(); show(Number($("scrub").value)); });
+    $("speed").addEventListener("input", function () { if (S.playing) { start(); } if (S.meta) { updateURL(); } });
+    ["bright", "contrast", "invert"].forEach(function (id) { $(id).addEventListener("input", applyFilter); });
+    $("target").addEventListener("change", function () {
+      loadTarget($("target").value).catch(showError);
+    });
+    $("copy").addEventListener("click", function () {
+      var done = function () { $("copy").textContent = "Link copied"; setTimeout(function () { $("copy").textContent = "Copy link to this view"; }, 1500); };
+      if (navigator.clipboard) { navigator.clipboard.writeText(location.href).then(done); } else { done(); }
+    });
+    document.addEventListener("keydown", function (e) {
+      var tag = (e.target && e.target.tagName) || "";
+      if (tag === "INPUT" || tag === "SELECT" || tag === "BUTTON") { return; }
+      if (e.key === " ") { e.preventDefault(); if (S.playing) { stop(); } else { start(); } }
+      if (e.key === "ArrowRight") { stop(); show(S.i + 1); }
+      if (e.key === "ArrowLeft") { stop(); show(S.i - 1); }
+    });
+  }
+
+  function showError(err) {
+    $("label").textContent = "Could not load the image data: " + err.message +
+      ". If you opened this file directly from your computer, view it through GitHub Pages or a local web server instead.";
+  }
+
+  function init() {
+    wire();
+    getJSON("data/targets.json").then(function (slugs) {
+      return Promise.all(slugs.map(function (s) { return getJSON("data/" + s + "/manifest.json"); }));
+    }).then(function (metas) {
+      if (!metas.length) { throw new Error("no targets found in data/targets.json"); }
+      S.metas = metas;
+      var sel = $("target");
+      metas.forEach(function (m) {
+        var o = document.createElement("option");
+        o.value = m.slug; o.textContent = m.title;
+        sel.appendChild(o);
+      });
+      var p = new URLSearchParams(location.search);
+      if (p.get("speed")) { $("speed").value = p.get("speed"); }
+      var want = p.get("target");
+      if (want && metas.some(function (m) { return m.slug === want; })) { sel.value = want; }
+      return loadTarget(sel.value);
+    }).catch(showError);
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
