@@ -4,299 +4,691 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SPHEREx Blink</title>
-<meta name="description" content="Blink through SPHEREx infrared images of a patch of sky to spot moving objects.">
+<meta name="description" content="Type sky coordinates and blink through SPHEREx infrared images of that patch to spot moving or changing objects.">
 <style>
-  :root {
-    --bg: #0b0f17;
-    --card: #141b29;
-    --ink: #e8edf6;
-    --muted: #93a0b8;
-    --accent: #6ea8ff;
-    --line: #243049;
-  }
+  :root { --bg:#0b0f17; --card:#141b29; --ink:#e8edf6; --muted:#93a0b8; --accent:#6ea8ff; --line:#243049; --warn:#ffcc66; --bad:#ff8a8a; }
   * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--ink);
-    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  }
-  header, main, footer { max-width: 960px; margin: 0 auto; padding-left: 16px; padding-right: 16px; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  header, main, footer, .how { max-width: 1040px; margin: 0 auto; padding-left: 16px; padding-right: 16px; }
   header { padding-top: 24px; padding-bottom: 8px; }
-  h1 { margin: 0 0 4px; font-size: 1.7rem; }
-  header p { margin: 0; color: var(--muted); }
-  main {
-    display: grid;
-    gap: 16px;
-    grid-template-columns: minmax(0, 1fr) 320px;
-    padding-top: 12px;
-    padding-bottom: 24px;
-  }
-  @media (max-width: 760px) { main { grid-template-columns: 1fr; } }
-  .card {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 16px;
-  }
-  .viewer { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-  .stage {
-    width: 100%;
-    max-width: 540px;
-    aspect-ratio: 1 / 1;
-    background: #000;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-  .stage img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    image-rendering: pixelated;
-    display: block;
-  }
-  .label { font-variant-numeric: tabular-nums; color: var(--ink); min-height: 1.5em; text-align: center; }
-  .controls { display: flex; gap: 8px; }
-  button {
-    background: #1d2840;
-    color: var(--ink);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 8px 16px;
-    font: inherit;
-    cursor: pointer;
-  }
-  button:hover { border-color: var(--accent); }
-  button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  input[type=range] { width: 100%; accent-color: var(--accent); }
-  .viewer input[type=range] { max-width: 540px; }
-  .side { display: flex; flex-direction: column; gap: 12px; }
-  .side label { color: var(--muted); font-size: 0.9rem; }
-  select {
-    width: 100%;
-    background: #1d2840;
-    color: var(--ink);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 8px;
-    font: inherit;
-  }
-  .row { display: grid; grid-template-columns: 90px 1fr; align-items: center; gap: 8px; }
-  .check { display: flex; align-items: center; gap: 8px; }
-  dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 0.9rem; }
-  dt { color: var(--muted); }
-  dd { margin: 0; font-variant-numeric: tabular-nums; }
-  .muted { color: var(--muted); font-size: 0.9rem; margin: 0; }
-  .how { max-width: 960px; margin: 0 auto 24px; padding: 0 16px; }
-  .how .card h2 { margin: 0 0 8px; font-size: 1.1rem; }
-  .how .card p { margin: 0 0 8px; color: var(--muted); }
-  footer { padding-top: 8px; padding-bottom: 32px; color: var(--muted); font-size: 0.85rem; }
-  footer p { margin: 0 0 8px; }
-  a { color: var(--accent); }
+  h1 { margin:0 0 4px; font-size:1.7rem; }
+  header p { margin:0; color:var(--muted); }
+  main { display:grid; gap:16px; grid-template-columns:minmax(0,1fr) 340px; padding-top:12px; padding-bottom:24px; }
+  @media (max-width: 800px) { main { grid-template-columns: 1fr; } }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; }
+  .viewer { display:flex; flex-direction:column; align-items:center; gap:12px; }
+  .stage { position:relative; width:100%; max-width:560px; aspect-ratio:1/1; background:#000; border-radius:8px; overflow:hidden; }
+  .stage canvas { width:100%; height:100%; display:block; image-rendering:pixelated; }
+  .stage svg { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+  .label { font-variant-numeric:tabular-nums; text-align:center; min-height:1.5em; }
+  .controls { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+  button { background:#1d2840; color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:8px 16px; font:inherit; cursor:pointer; }
+  button:hover { border-color:var(--accent); }
+  button.primary { background:#2a4a85; border-color:#3d66b3; font-weight:600; }
+  button:disabled { opacity:.5; cursor:default; }
+  button:focus-visible, input:focus-visible, select:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  input[type=range] { width:100%; accent-color:var(--accent); }
+  .viewer input[type=range] { max-width:560px; }
+  input[type=text], input[type=number], select { width:100%; background:#1d2840; color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:8px; font:inherit; }
+  .side { display:flex; flex-direction:column; gap:12px; }
+  .side label, .lab { color:var(--muted); font-size:.9rem; display:block; margin-bottom:2px; }
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .row { display:grid; grid-template-columns:90px 1fr; align-items:center; gap:8px; }
+  .check { display:flex !important; align-items:center; gap:8px; }
+  .examples { display:flex; flex-wrap:wrap; gap:6px; }
+  .examples button { padding:4px 10px; font-size:.85rem; }
+  details { border-top:1px solid var(--line); padding-top:8px; }
+  summary { cursor:pointer; color:var(--muted); font-size:.9rem; }
+  dl { margin:0; display:grid; grid-template-columns:auto 1fr; gap:4px 12px; font-size:.9rem; }
+  dt { color:var(--muted); } dd { margin:0; font-variant-numeric:tabular-nums; word-break:break-word; }
+  .muted { color:var(--muted); font-size:.9rem; margin:0; }
+  .status { font-size:.9rem; color:var(--muted); min-height:1.4em; }
+  .status.err { color:var(--bad); } .status.warn { color:var(--warn); }
+  progress { width:100%; height:8px; }
+  #curve { width:100%; max-width:560px; height:110px; background:#0f1522; border-radius:8px; }
+  .how .card h2 { margin:0 0 8px; font-size:1.1rem; }
+  .how .card p { margin:0 0 8px; color:var(--muted); }
+  .how { margin-bottom:24px; }
+  footer { padding-top:8px; padding-bottom:32px; color:var(--muted); font-size:.85rem; }
+  footer p { margin:0 0 8px; }
+  a { color:var(--accent); }
+  hr { border:0; border-top:1px solid var(--line); width:100%; margin:0; }
 </style>
 </head>
 <body>
 
 <header>
   <h1>SPHEREx Blink</h1>
-  <p>Flip through infrared images of the same patch of sky, taken months apart. Anything that moves jumps between frames.</p>
+  <p>Type a patch of sky and flip through SPHEREx infrared images of it, taken months apart. Anything that moves or changes brightness stands out.</p>
 </header>
 
 <main>
   <section class="card viewer" aria-label="Image viewer">
-    <div class="stage"><img id="frame" alt="SPHEREx sky image cutout"></div>
-    <div class="label" id="label" aria-live="polite">Loading...</div>
+    <div class="stage">
+      <canvas id="view" width="117" height="117" aria-label="SPHEREx sky image cutout"></canvas>
+      <svg id="cross" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <g stroke="#6ea8ff" stroke-width=".5" opacity=".9">
+          <line x1="50" y1="36" x2="50" y2="45"/><line x1="50" y1="55" x2="50" y2="64"/>
+          <line x1="36" y1="50" x2="45" y2="50"/><line x1="55" y1="50" x2="64" y2="50"/>
+        </g>
+      </svg>
+    </div>
+    <div class="label" id="label" aria-live="polite">Enter coordinates on the right and press "Make flipbook".</div>
     <div class="controls">
-      <button id="prev" type="button" aria-label="Previous frame">&#9664; Back</button>
-      <button id="play" type="button" aria-label="Play or pause">Pause</button>
-      <button id="next" type="button" aria-label="Next frame">Next &#9654;</button>
+      <button id="prev" type="button">&#9664; Back</button>
+      <button id="play" type="button">Play</button>
+      <button id="next" type="button">Next &#9654;</button>
     </div>
     <input id="scrub" type="range" min="0" max="0" value="0" aria-label="Choose a frame">
+    <canvas id="curve" width="560" height="110" aria-label="Brightness at the center over time"></canvas>
+    <p class="muted" id="curveNote"></p>
   </section>
 
   <aside class="card side" aria-label="Controls">
     <div>
-      <label for="target">Target</label>
-      <select id="target"></select>
+      <label for="name">Object name (optional, looks up coordinates)</label>
+      <div class="two" style="grid-template-columns:1fr auto">
+        <input id="name" type="text" placeholder="e.g. Barnard's Star" autocomplete="off">
+        <button id="resolve" type="button">Look up</button>
+      </div>
     </div>
-    <div class="row">
-      <label for="speed">Speed</label>
-      <input id="speed" type="range" min="150" max="1500" step="50" value="600">
+    <div class="two">
+      <div><label for="ra">RA (deg, or 08h55m10.8s)</label><input id="ra" type="text" placeholder="269.452077"></div>
+      <div><label for="dec">Dec (deg, or -7d14m42.5s)</label><input id="dec" type="text" placeholder="4.693365"></div>
     </div>
-    <div class="row">
-      <label for="bright">Brightness</label>
-      <input id="bright" type="range" min="0.5" max="2.5" step="0.1" value="1">
+    <div class="examples" id="examples"></div>
+    <div class="two">
+      <div><label for="fov">Field of view</label>
+        <select id="fov"><option value="0.05">0.05&deg; (3&prime;)</option><option value="0.1" selected>0.1&deg; (6&prime;)</option><option value="0.2">0.2&deg; (12&prime;)</option><option value="0.4">0.4&deg; (24&prime;, slower)</option></select></div>
+      <div><label for="det">Detector (wavelength)</label>
+        <select id="det">
+          <option value="SPHEREx-D1">D1 0.75&ndash;1.1 &micro;m</option><option value="SPHEREx-D2">D2 1.1&ndash;1.6 &micro;m</option>
+          <option value="SPHEREx-D3">D3 1.6&ndash;2.4 &micro;m</option><option value="SPHEREx-D4">D4 2.4&ndash;3.8 &micro;m</option>
+          <option value="SPHEREx-D5">D5 3.8&ndash;4.4 &micro;m</option><option value="SPHEREx-D6" selected>D6 4.4&ndash;5.0 &micro;m</option>
+        </select></div>
     </div>
-    <div class="row">
-      <label for="contrast">Contrast</label>
-      <input id="contrast" type="range" min="0.5" max="2.5" step="0.1" value="1">
+    <div class="two">
+      <div><label for="mode">What to show</label>
+        <select id="mode">
+          <option value="single">Every exposure</option>
+          <option value="epoch">One stacked image per epoch</option>
+          <option value="diff">Epoch minus first epoch</option>
+        </select></div>
+      <div><label for="maxn">Max exposures</label>
+        <select id="maxn"><option>12</option><option selected>24</option><option>48</option><option>96</option></select></div>
     </div>
+    <details>
+      <summary>Moving target? Proper motion (optional)</summary>
+      <p class="muted" style="margin:6px 0">Arcseconds per year. The center is moved to where the object is on the observation dates.</p>
+      <div class="two">
+        <div><label for="pmra">PM in RA (&Prime;/yr)</label><input id="pmra" type="number" step="any" value="0"></div>
+        <div><label for="pmdec">PM in Dec (&Prime;/yr)</label><input id="pmdec" type="number" step="any" value="0"></div>
+      </div>
+      <label for="epoch">Epoch of the coordinates (year)</label><input id="epoch" type="number" step="any" value="2000">
+    </details>
+    <button id="go" class="primary" type="button">Make flipbook</button>
+    <button id="cancel" type="button" style="display:none">Cancel</button>
+    <progress id="prog" value="0" max="1" style="display:none"></progress>
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+    <hr>
+    <div class="row"><label for="speed">Speed</label><input id="speed" type="range" min="150" max="1500" step="50" value="600"></div>
+    <div class="row"><label for="bright">Brightness</label><input id="bright" type="range" min="0.5" max="2.5" step="0.1" value="1"></div>
+    <div class="row"><label for="contrast">Contrast</label><input id="contrast" type="range" min="0.5" max="2.5" step="0.1" value="1"></div>
     <label class="check"><input type="checkbox" id="invert"> Invert (dark stars on light)</label>
+    <label class="check"><input type="checkbox" id="showx" checked> Show center marks</label>
     <button id="copy" type="button">Copy link to this view</button>
     <dl id="details"></dl>
-    <p class="muted" id="note"></p>
+    <details>
+      <summary>Saved examples and connection</summary>
+      <div style="margin-top:8px">
+        <label for="saved">Saved example (works even if NASA's servers are down)</label>
+        <div class="two" style="grid-template-columns:1fr auto"><select id="saved"></select><button id="loadSaved" type="button">Show</button></div>
+      </div>
+      <div style="margin-top:8px">
+        <label for="proxy">Data relay address (set once by the site owner)</label>
+        <input id="proxy" type="text" placeholder="https://your-worker.workers.dev">
+      </div>
+    </details>
   </aside>
 </main>
 
 <div class="how">
   <div class="card">
     <h2>How to use this</h2>
-    <p>Press Play and watch one spot in the sky. Stars that stay put stay put. A nearby star, brown dwarf, comet or asteroid shifts a little from frame to frame.</p>
-    <p>Use Back and Next, or the left and right arrow keys, to step through one frame at a time. The space bar pauses and plays. Raise the brightness or contrast to see faint things, or invert the picture.</p>
-    <p>Each frame is a small cutout from one SPHEREx exposure. The date above the picture is when that exposure was taken. The cutouts are centered on where the target is expected to be on the observation dates.</p>
+    <p>Type a Right Ascension and Declination (decimal degrees, or hours/degrees like 08h55m10.8s and -7d14m42.5s), or an object name, then press Make flipbook. Examples are one click away. The tool asks NASA's archive (IRSA) for every SPHEREx exposure covering that spot, cuts out a small square from each, lines them up on the sky, subtracts the background and plays them like a short video.</p>
+    <p>Stars that stay put stay put. A nearby star, brown dwarf, comet or asteroid shifts between frames. A variable star changes brightness, shown in the small chart under the picture. "One stacked image per epoch" adds up the exposures from each visit for a cleaner picture. "Epoch minus first epoch" shows only what changed since the first visit: bright and dark spots mean something moved or varied.</p>
+    <p>Share a view by copying the link. You can also build one yourself: add <code>?ra=269.452&amp;dec=4.693&amp;fov=0.1&amp;det=SPHEREx-D6&amp;mode=single</code> to the page address.</p>
+    <p>Limits: the NASA archive is sometimes slow or busy, so a request can take a minute or fail, and it may need another try. Pixel flags are not applied yet. Each SPHEREx exposure covers only one band per detector, so frames from one detector differ slightly in color.</p>
   </div>
 </div>
 
 <footer>
   <p>This publication makes use of data products from the Spectro-Photometer for the History of the Universe, Epoch of Reionization and Ices Explorer (SPHEREx), which is a joint project of the Jet Propulsion Laboratory and the California Institute of Technology, and is funded by the National Aeronautics and Space Administration.</p>
-  <p>Images come from the <a href="https://irsa.ipac.caltech.edu/Missions/spherex.html">NASA/IPAC Infrared Science Archive (IRSA)</a>. Built for the NASA Space Apps Challenge 2026.</p>
+  <p>Images come from the <a href="https://irsa.ipac.caltech.edu/Missions/spherex.html">NASA/IPAC Infrared Science Archive (IRSA)</a>. Name lookup by CDS Sesame. Built for the NASA Space Apps Challenge 2026.</p>
 </footer>
 
 <script>
 (function () {
-  var $ = function (id) { return document.getElementById(id); };
-  var S = { metas: [], meta: null, imgs: [], i: 0, timer: null, playing: false };
+  "use strict";
+  // ====== SETTINGS ======
+  // Paste the address of your Cloudflare Worker here (see instructions), for example:
+  // var DEFAULT_PROXY = "https://spherex-relay.yourname.workers.dev";
+  var DEFAULT_PROXY = "";
+  var COLLECTIONS = ["spherex_dr1", "spherex_qr3"];
+  var PIXEL_SCALE = 6.15; // arcsec per pixel
+  var EXAMPLES = [
+    { id: "barnard", label: "Barnard's Star", ra: 269.452077, dec: 4.693365, pmra: -0.801551, pmdec: 10.362394, epoch: 2000, fov: 0.1, det: "SPHEREx-D6", mode: "single" },
+    { id: "wise0855", label: "WISE 0855", ra: 133.7951321, dec: -7.2451472, pmra: -8.119, pmdec: 0.679, epoch: 2014, fov: 0.1, det: "SPHEREx-D6", mode: "single" },
+    // Epsilon Indi B sits several arcminutes from the bright star, so use a wide field centered on the star.
+    { id: "epsindi", label: "Epsilon Indi (A + B)", name: "eps Indi", ra: 330.8402, dec: -56.7860, pmra: 3.966, pmdec: -2.536, epoch: 2000, fov: 0.4, det: "SPHEREx-D6", mode: "single" },
+    { id: "rwaur", label: "RW Aurigae", name: "RW Aur", ra: 76.9565, dec: 30.4014, pmra: 0, pmdec: 0, epoch: 2000, fov: 0.1, det: "SPHEREx-D2", mode: "single" },
+    { id: "rdra", label: "R Draconis", name: "R Dra", ra: 248.1670, dec: 66.7550, pmra: 0, pmdec: 0, epoch: 2000, fov: 0.1, det: "SPHEREx-D2", mode: "single" }
+  ];
 
-  function getJSON(url) {
-    return fetch(url, { cache: "no-cache" }).then(function (r) {
-      if (!r.ok) { throw new Error(url + " (" + r.status + ")"); }
-      return r.json();
+  var $ = function (id) { return document.getElementById(id); };
+  var S = { frames: [], i: 0, timer: null, playing: false, token: 0, cache: {}, curve: [], dates: [] };
+
+  // ====== helpers ======
+  function proxyBase() { return ($("proxy").value || DEFAULT_PROXY || "").trim(); }
+  function viaProxy(url) {
+    var p = proxyBase();
+    if (!p) { throw new Error("No data relay address set. Open \"Saved examples and connection\" and paste it, or see the setup guide."); }
+    return p.replace(/\/+$/, "") + "/?url=" + encodeURIComponent(url);
+  }
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function status(msg, cls) { var s = $("status"); s.textContent = msg; s.className = "status" + (cls ? " " + cls : ""); }
+  function mjdToDate(m) { return new Date((m - 40587) * 86400000); }
+  function fmtDate(m) { return mjdToDate(m).toISOString().slice(0, 10); }
+  function mjdToYear(m) { return 2000 + (m - 51544.5) / 365.25; }
+
+  function fetchTimeout(url, ms, token) {
+    var ctl = new AbortController();
+    var t = setTimeout(function () { ctl.abort(); }, ms);
+    return fetch(url, { signal: ctl.signal }).then(function (r) { clearTimeout(t); return r; },
+      function (e) { clearTimeout(t); throw e; });
+  }
+  async function fetchRetry(url, kind, ms, tries, token) {
+    var last;
+    for (var k = 0; k < tries; k++) {
+      if (token !== S.token) { throw new Error("cancelled"); }
+      try {
+        var r = await fetchTimeout(viaProxy(url), ms, token);
+        if (r.ok) { return r; }
+        last = new Error(kind + " returned HTTP " + r.status);
+      } catch (e) { last = e.name === "AbortError" ? new Error(kind + " timed out") : e; }
+      if (last.message.indexOf("No data relay") === 0) { throw last; }
+      await sleep(800 * (k + 1) * (k + 1));
+    }
+    throw last;
+  }
+
+  // ====== coordinates ======
+  function parseAngle(str, isRA) {
+    var s = String(str).trim();
+    if (!s) { throw new Error("Please fill in both RA and Dec."); }
+    if (/^[+-]?\d+(\.\d+)?$/.test(s) || /^[+-]?\.\d+$/.test(s)) { return Number(s); }
+    var neg = /^\s*-/.test(s);
+    var nums = (s.match(/\d+(\.\d+)?/g) || []).map(Number);
+    if (!nums.length) { throw new Error("Could not read \"" + s + "\" as an angle."); }
+    var v = nums[0] + (nums[1] || 0) / 60 + (nums[2] || 0) / 3600;
+    if (isRA) {
+      var hasD = /d|°/i.test(s);
+      if (!hasD) { v *= 15; }
+    }
+    return neg ? -v : v;
+  }
+  function wrapRA(r) { return ((r % 360) + 360) % 360; }
+  function movedCenter(ra, dec, pmra, pmdec, epoch, year) {
+    var dt = year - epoch;
+    return [ra + pmra * dt / 3600 / Math.cos(dec * Math.PI / 180), dec + pmdec * dt / 3600];
+  }
+
+  // ====== name lookup (CDS Sesame) ======
+  async function resolveName() {
+    var nm = $("name").value.trim();
+    if (!nm) { status("Type an object name first.", "warn"); return; }
+    status("Looking up " + nm + "...");
+    try {
+      var url = "https://cds.unistra.fr/cgi-bin/nph-sesame/-oI/SNV?" + encodeURIComponent(nm);
+      var txt = await (await fetchRetry(url, "name lookup", 15000, 2, S.token)).text();
+      var m = txt.match(/%J\s+([\d.]+)\s+([+-]?[\d.]+)/);
+      if (!m) { throw new Error("name not found"); }
+      $("ra").value = Number(m[1]).toFixed(6);
+      $("dec").value = Number(m[2]).toFixed(6);
+      var p = txt.match(/%P\s+([+-]?[\d.]+)\s+([+-]?[\d.]+)/);
+      if (p) { $("pmra").value = (Number(p[1]) / 1000).toFixed(4); $("pmdec").value = (Number(p[2]) / 1000).toFixed(4); $("epoch").value = 2000; }
+      else { $("pmra").value = 0; $("pmdec").value = 0; }
+      status("Found " + nm + ". Press Make flipbook.");
+    } catch (e) {
+      status("Could not look up \"" + nm + "\" (" + e.message + "). You can type RA and Dec instead.", "err");
+    }
+  }
+
+  // ====== IRSA search ======
+  function parseVOTable(text) {
+    var doc = new DOMParser().parseFromString(text, "text/xml");
+    if (doc.getElementsByTagName("parsererror").length) { throw new Error("unreadable reply from the archive"); }
+    var names = Array.prototype.map.call(doc.getElementsByTagName("FIELD"), function (f) { return f.getAttribute("name"); });
+    if (!names.length) { throw new Error("the archive reply had no table"); }
+    var rows = [];
+    Array.prototype.forEach.call(doc.getElementsByTagName("TR"), function (tr) {
+      var o = {}, tds = tr.getElementsByTagName("TD");
+      for (var i = 0; i < names.length; i++) { o[names[i]] = tds[i] ? tds[i].textContent.trim() : ""; }
+      rows.push(o);
+    });
+    return rows;
+  }
+  async function findImages(ra, dec, det, token) {
+    var all = [], errs = [];
+    for (var c = 0; c < COLLECTIONS.length; c++) {
+      var url = "https://irsa.ipac.caltech.edu/SIA?COLLECTION=" + COLLECTIONS[c] +
+        "&POS=circle+" + ra.toFixed(6) + "+" + dec.toFixed(6) + "+0.02&MAXREC=2000";
+      try {
+        var txt = await (await fetchRetry(url, "archive search", 45000, 4, token)).text();
+        all = all.concat(parseVOTable(txt));
+      } catch (e) { if (e.message === "cancelled") { throw e; } errs.push(COLLECTIONS[c] + ": " + e.message); }
+    }
+    if (!all.length && errs.length) { throw new Error("The NASA archive did not answer (" + errs.join("; ") + "). Please try again in a minute."); }
+    var seen = {}, rows = [];
+    all.forEach(function (r) {
+      if (r.energy_bandpassname !== det || !r.access_url || seen[r.access_url]) { return; }
+      seen[r.access_url] = 1;
+      r.t = Number(r.t_min);
+      if (isFinite(r.t)) { rows.push(r); }
+    });
+    rows.sort(function (a, b) { return a.t - b.t; });
+    return { rows: rows, partial: errs };
+  }
+
+  // ====== FITS ======
+  function parseFits(buf) {
+    var bytes = new Uint8Array(buf), pos = 0, hdus = [];
+    while (pos + 2880 <= bytes.length) {
+      var hdr = {}, ended = false, p = pos;
+      while (!ended && p + 80 <= bytes.length) {
+        for (var b = 0; b < 36; b++) {
+          var card = "";
+          for (var k = 0; k < 80; k++) { card += String.fromCharCode(bytes[p + b * 80 + k]); }
+          var key = card.slice(0, 8).trim();
+          if (key === "END") { ended = true; break; }
+          if (card[8] === "=") {
+            var v = card.slice(10);
+            if (v.trim()[0] === "'") { var q = v.indexOf("'"); var e2 = v.indexOf("'", q + 1); while (v[e2 + 1] === "'") { e2 = v.indexOf("'", e2 + 2); } hdr[key] = v.slice(q + 1, e2).trim(); }
+            else { var sl = v.indexOf("/"); if (sl >= 0) { v = v.slice(0, sl); } v = v.trim(); hdr[key] = (v === "T") ? true : (v === "F") ? false : Number(v); }
+          }
+        }
+        p += 2880;
+        if (!ended && p >= bytes.length) { break; }
+      }
+      if (!ended) { break; }
+      var naxis = hdr.NAXIS || 0, n = naxis ? 1 : 0;
+      for (var a = 1; a <= naxis; a++) { n *= hdr["NAXIS" + a]; }
+      var dataBytes = n * Math.abs(hdr.BITPIX || 0) / 8;
+      hdr._off = p; hdr._bytes = dataBytes;
+      hdus.push(hdr);
+      pos = p + Math.ceil(dataBytes / 2880) * 2880;
+    }
+    var img = null;
+    hdus.forEach(function (h) { if (!img && String(h.EXTNAME || "").toUpperCase() === "IMAGE") { img = h; } });
+    if (!img) { img = hdus.filter(function (h) { return (h.NAXIS || 0) === 2; })[0]; }
+    if (!img) { throw new Error("no image in the cutout file"); }
+    var w = img.NAXIS1, h2 = img.NAXIS2, dv = new DataView(buf, img._off, img._bytes);
+    var data = new Float32Array(w * h2), bz = img.BZERO || 0, bs = img.BSCALE == null ? 1 : img.BSCALE;
+    for (var i = 0; i < w * h2; i++) {
+      var val;
+      if (img.BITPIX === -32) { val = dv.getFloat32(i * 4, false); }
+      else if (img.BITPIX === -64) { val = dv.getFloat64(i * 8, false); }
+      else if (img.BITPIX === 16) { val = dv.getInt16(i * 2, false); }
+      else if (img.BITPIX === 32) { val = dv.getInt32(i * 4, false); }
+      else { throw new Error("unsupported image type " + img.BITPIX); }
+      data[i] = (isFinite(val) ? val * bs + bz : NaN);
+    }
+    var cd = [[img.CD1_1, img.CD1_2], [img.CD2_1, img.CD2_2]];
+    if (img.CD1_1 == null) {
+      var pc = [[img.PC1_1 == null ? 1 : img.PC1_1, img.PC1_2 || 0], [img.PC2_1 || 0, img.PC2_2 == null ? 1 : img.PC2_2]];
+      var d1 = img.CDELT1, d2 = img.CDELT2;
+      cd = [[d1 * pc[0][0], d1 * pc[0][1]], [d2 * pc[1][0], d2 * pc[1][1]]];
+    }
+    cd = [[cd[0][0] || 0, cd[0][1] || 0], [cd[1][0] || 0, cd[1][1] || 0]];
+    return { w: w, h: h2, data: data, crval: [img.CRVAL1, img.CRVAL2], crpix: [img.CRPIX1, img.CRPIX2], cd: cd };
+  }
+
+  // Resample a cutout onto a common north-up grid centered at (ra0, dec0).
+  function resample(f, ra0, dec0, N) {
+    var D = Math.PI / 180, out = new Float32Array(N * N), sc = PIXEL_SCALE / 3600;
+    var a0 = f.crval[0] * D, d0 = f.crval[1] * D;
+    var det = f.cd[0][0] * f.cd[1][1] - f.cd[0][1] * f.cd[1][0];
+    var inv = [[f.cd[1][1] / det, -f.cd[0][1] / det], [-f.cd[1][0] / det, f.cd[0][0] / det]];
+    var cr = ra0 * D, cdc = dec0 * D, sd0 = Math.sin(cdc), cd0 = Math.cos(cdc);
+    var sD = Math.sin(d0), cD = Math.cos(d0), mid = (N - 1) / 2;
+    for (var y = 0; y < N; y++) {
+      for (var x = 0; x < N; x++) {
+        var xi = -(x - mid) * sc * D, eta = (mid - y) * sc * D;
+        var rho = Math.sqrt(xi * xi + eta * eta), ra, dec;
+        if (rho === 0) { ra = cr; dec = cdc; }
+        else {
+          var c = Math.atan(rho), sc_ = Math.sin(c), cc = Math.cos(c);
+          dec = Math.asin(cc * sd0 + eta * sc_ * cd0 / rho);
+          ra = cr + Math.atan2(xi * sc_, rho * cd0 * cc - eta * sd0 * sc_);
+        }
+        var dra = ra - a0, cosc = sD * Math.sin(dec) + cD * Math.cos(dec) * Math.cos(dra);
+        var xi2 = Math.cos(dec) * Math.sin(dra) / cosc / D;
+        var eta2 = (cD * Math.sin(dec) - sD * Math.cos(dec) * Math.cos(dra)) / cosc / D;
+        var px = inv[0][0] * xi2 + inv[0][1] * eta2 + f.crpix[0] - 1;
+        var py = inv[1][0] * xi2 + inv[1][1] * eta2 + f.crpix[1] - 1;
+        var ix = Math.floor(px), iy = Math.floor(py), tx = px - ix, ty = py - iy;
+        if (ix < 0 || iy < 0 || ix + 1 >= f.w || iy + 1 >= f.h) { out[y * N + x] = NaN; continue; }
+        var v00 = f.data[iy * f.w + ix], v10 = f.data[iy * f.w + ix + 1], v01 = f.data[(iy + 1) * f.w + ix], v11 = f.data[(iy + 1) * f.w + ix + 1];
+        out[y * N + x] = (v00 * (1 - tx) + v10 * tx) * (1 - ty) + (v01 * (1 - tx) + v11 * tx) * ty;
+      }
+    }
+    return out;
+  }
+  function nanmedian(a) {
+    var v = [];
+    for (var i = 0; i < a.length; i++) { if (a[i] === a[i]) { v.push(a[i]); } }
+    if (!v.length) { return NaN; }
+    v.sort(function (p, q) { return p - q; });
+    return v[Math.floor(v.length / 2)];
+  }
+  function subMedian(a) { var m = nanmedian(a); for (var i = 0; i < a.length; i++) { a[i] -= m; } return a; }
+  function nanmeanStack(list, N) {
+    var out = new Float32Array(N * N);
+    for (var i = 0; i < N * N; i++) {
+      var s = 0, c = 0;
+      for (var k = 0; k < list.length; k++) { var v = list[k][i]; if (v === v) { s += v; c++; } }
+      out[i] = c ? s / c : NaN;
+    }
+    return out;
+  }
+  function aperture(a, N) {
+    var mid = (N - 1) / 2, s = 0, c = 0, bs = 0, bc = 0;
+    for (var y = 0; y < N; y++) for (var x = 0; x < N; x++) {
+      var v = a[y * N + x]; if (v !== v) { continue; }
+      var r = Math.hypot(x - mid, y - mid);
+      if (r <= 1.6) { s += v; c++; } else if (r >= 4 && r <= 7) { bs += v; bc++; }
+    }
+    return (c ? s / c : NaN) - (bc ? bs / bc : 0);
+  }
+
+  // ====== cutout download ======
+  async function getCutout(row, ra, dec, fov, token) {
+    var url = row.access_url + (row.access_url.indexOf("?") < 0 ? "?" : "&") + "center=" + ra.toFixed(6) + "," + dec.toFixed(6) + "&size=" + fov;
+    if (S.cache[url]) { return S.cache[url]; }
+    var buf = await (await fetchRetry(url, "image download", 60000, 4, token)).arrayBuffer();
+    var f = parseFits(buf);
+    S.cache[url] = f;
+    return f;
+  }
+
+  // ====== main run ======
+  async function run(opts) {
+    var token = ++S.token;
+    stopPlay();
+    var ra, dec, fov = Number($("fov").value), det = $("det").value, mode = $("mode").value, maxn = Number($("maxn").value);
+    try {
+      ra = wrapRA(parseAngle($("ra").value, true)); dec = parseAngle($("dec").value, false);
+      if (!(dec >= -90 && dec <= 90)) { throw new Error("Dec must be between -90 and 90 degrees."); }
+    } catch (e) { status(e.message, "err"); return; }
+    var pmra = Number($("pmra").value) || 0, pmdec = Number($("pmdec").value) || 0, epoch = Number($("epoch").value) || 2000;
+    $("go").disabled = true; $("cancel").style.display = ""; $("prog").style.display = "";
+    $("prog").value = 0; $("prog").max = 1;
+    updateURL();
+    try {
+      status("Searching NASA's archive for SPHEREx images of this spot...");
+      var found = await findImages(ra, dec, det, token);
+      var rows = found.rows;
+      if (!rows.length) { throw new Error("No SPHEREx " + det.replace("SPHEREx-", "") + " images cover this position yet. Try another detector, or another position."); }
+      var total = rows.length;
+      if (rows.length > maxn) {
+        var pick = [];
+        for (var i = 0; i < maxn; i++) { pick.push(rows[Math.round(i * (rows.length - 1) / (maxn - 1))]); }
+        rows = pick;
+      }
+      var meanT = rows.reduce(function (s, r) { return s + r.t; }, 0) / rows.length;
+      var c = movedCenter(ra, dec, pmra, pmdec, epoch, mjdToYear(meanT));
+      var N = Math.max(15, Math.round(fov * 3600 / PIXEL_SCALE));
+      $("prog").max = rows.length; $("prog").value = 0;
+      var done = 0, results = new Array(rows.length), next = 0, failed = 0;
+      async function worker() {
+        while (next < rows.length) {
+          var idx = next++;
+          if (token !== S.token) { return; }
+          try {
+            var f = await getCutout(rows[idx], c[0], c[1], fov, token);
+            results[idx] = subMedian(resample(f, c[0], c[1], N));
+          } catch (e) { if (e.message === "cancelled") { return; } failed++; }
+          done++; $("prog").value = done;
+          status("Downloading image cutouts: " + done + " of " + rows.length + (failed ? " (" + failed + " failed)" : "") + "...");
+        }
+      }
+      await Promise.all([worker(), worker(), worker(), worker()]);
+      if (token !== S.token) { return; }
+      var good = [];
+      rows.forEach(function (r, i) { if (results[i]) { good.push({ row: r, img: results[i] }); } });
+      if (!good.length) { throw new Error("The archive found images but none of the cutouts could be downloaded (" + failed + " failed). The archive may be busy. Please try again shortly."); }
+      status("Building the flipbook...");
+      await sleep(20);
+      var frames = buildFrames(good, mode, N);
+      if (!frames.length) { throw new Error("Need images from at least two different visits for that mode. Try \"Every exposure\"."); }
+      S.dates = good.map(function (g) { return g.row.t; });
+      showFrames(frames, N);
+      var spanA = fmtDate(good[0].row.t), spanB = fmtDate(good[good.length - 1].row.t);
+      fillDetails({ ra: ra, dec: dec, cra: c[0], cdec: c[1], fov: fov, det: det, found: total, used: good.length, failed: failed, from: spanA, to: spanB, mode: mode, partial: found.partial });
+      var msg = "Done: " + frames.length + " frames from " + good.length + " exposures.";
+      if (failed) { msg += " " + failed + " could not be downloaded."; }
+      if (found.partial.length) { msg += " Part of the archive did not answer (" + found.partial.join("; ") + ")."; }
+      status(msg, failed || found.partial.length ? "warn" : "");
+    } catch (e) {
+      if (e.message !== "cancelled") { status(e.message, "err"); }
+    } finally {
+      if (token === S.token) { $("go").disabled = false; $("cancel").style.display = "none"; $("prog").style.display = "none"; }
+    }
+  }
+
+  function groupEpochs(good) {
+    var groups = [], cur = [];
+    good.forEach(function (g, i) {
+      if (i && g.row.t - good[i - 1].row.t > 20) { groups.push(cur); cur = []; }
+      cur.push(g);
+    });
+    if (cur.length) { groups.push(cur); }
+    return groups;
+  }
+  function buildFrames(good, mode, N) {
+    if (mode === "single") {
+      return good.map(function (g, i) { return { img: g.img, label: fmtDate(g.row.t) + "   exposure " + (i + 1) + " of " + good.length, t: g.row.t, obs: g.row.obs_id }; });
+    }
+    var groups = groupEpochs(good), stacks = groups.map(function (gr) {
+      var t0 = gr[0].row.t, t1 = gr[gr.length - 1].row.t;
+      return { img: subMedian(nanmeanStack(gr.map(function (g) { return g.img; }), N)), t: (t0 + t1) / 2,
+        label: "Epoch " + fmtDate(t0) + (t1 - t0 > 1 ? " to " + fmtDate(t1) : "") + "   (" + gr.length + " exposures)", obs: gr.length + " exposures" };
+    });
+    if (mode === "epoch") { return stacks; }
+    if (stacks.length < 2) { return []; }
+    var base = stacks[0].img;
+    return stacks.slice(1).map(function (s) {
+      var d = new Float32Array(N * N);
+      for (var i = 0; i < d.length; i++) { d[i] = s.img[i] - base[i]; }
+      return { img: d, t: s.t, diff: true, label: s.label + "  minus first epoch", obs: s.obs };
     });
   }
 
+  // ====== display ======
+  function percentile(vals, p) {
+    var a = vals.filter(function (v) { return v === v; }).sort(function (x, y) { return x - y; });
+    return a.length ? a[Math.min(a.length - 1, Math.max(0, Math.floor(p * (a.length - 1))))] : 0;
+  }
+  function showFrames(frames, N) {
+    var all = [];
+    frames.forEach(function (f) { for (var i = 0; i < f.img.length; i += 3) { all.push(f.img[i]); } });
+    var diff = frames[0].diff, lo, hi;
+    if (diff) { hi = Math.max(1e-9, percentile(all.map(Math.abs), 0.995)); lo = -hi; }
+    else { lo = percentile(all, 0.02); hi = percentile(all, 0.997); if (hi <= lo) { hi = lo + 1; } }
+    var K = 8;
+    frames.forEach(function (f) {
+      var cv = document.createElement("canvas"); cv.width = N; cv.height = N;
+      var ctx = cv.getContext("2d"), id = ctx.createImageData(N, N);
+      for (var i = 0; i < N * N; i++) {
+        var v = f.img[i], g;
+        if (v !== v) { g = 0; }
+        else if (diff) { g = 255 * (0.5 + 0.5 * v / hi); }
+        else { var t = Math.min(1, Math.max(0, (v - lo) / (hi - lo))); g = 255 * Math.asinh(K * t) / Math.asinh(K); }
+        g = Math.max(0, Math.min(255, g));
+        id.data[i * 4] = id.data[i * 4 + 1] = id.data[i * 4 + 2] = g; id.data[i * 4 + 3] = 255;
+      }
+      ctx.putImageData(id, 0, 0);
+      f.canvas = cv;
+      f.flux = aperture(f.img, N);
+    });
+    S.frames = frames; S.N = N; S.mode = diff ? "diff" : "img";
+    var v = $("view"); v.width = N; v.height = N;
+    $("scrub").max = frames.length - 1;
+    applyFilter(); drawCurve();
+    show(0);
+    if (frames.length > 1) { startPlay(); }
+  }
+  function show(i) {
+    var n = S.frames.length; if (!n) { return; }
+    S.i = ((i % n) + n) % n;
+    var f = S.frames[S.i], ctx = $("view").getContext("2d");
+    ctx.drawImage(f.canvas, 0, 0);
+    $("label").textContent = f.label + "   (frame " + (S.i + 1) + " of " + n + ")";
+    $("scrub").value = S.i;
+    drawCurve();
+  }
+  function stopPlay() { if (S.timer) { clearInterval(S.timer); } S.timer = null; S.playing = false; $("play").textContent = "Play"; }
+  function startPlay() { stopPlay(); if (S.frames.length < 2) { return; } S.playing = true; $("play").textContent = "Pause"; S.timer = setInterval(function () { show(S.i + 1); }, Number($("speed").value)); }
   function applyFilter() {
     var f = "brightness(" + $("bright").value + ") contrast(" + $("contrast").value + ")";
     if ($("invert").checked) { f += " invert(1)"; }
-    $("frame").style.filter = f;
+    $("view").style.filter = f;
+    $("cross").style.display = $("showx").checked ? "" : "none";
+  }
+  function drawCurve() {
+    var cv = $("curve"), ctx = cv.getContext("2d"), W = cv.width, H = cv.height;
+    ctx.clearRect(0, 0, W, H);
+    var fr = S.frames; if (!fr.length) { $("curveNote").textContent = ""; return; }
+    var ys = fr.map(function (f) { return f.flux; }).filter(function (v) { return v === v; });
+    if (ys.length < 2) { $("curveNote").textContent = ""; return; }
+    var mn = Math.min.apply(null, ys), mx = Math.max.apply(null, ys), pad = 14;
+    if (mx === mn) { mx = mn + 1; }
+    var ts = fr.map(function (f) { return f.t; }), t0 = Math.min.apply(null, ts), t1 = Math.max.apply(null, ts) || 1;
+    function X(t) { return pad + (t1 === t0 ? 0.5 : (t - t0) / (t1 - t0)) * (W - 2 * pad); }
+    function Y(v) { return H - pad - (v - mn) / (mx - mn) * (H - 2 * pad); }
+    ctx.strokeStyle = "#243049"; ctx.beginPath(); ctx.moveTo(pad, H - pad); ctx.lineTo(W - pad, H - pad); ctx.stroke();
+    ctx.strokeStyle = "#6ea8ff"; ctx.beginPath(); var first = true;
+    fr.forEach(function (f) { if (f.flux !== f.flux) { return; } var x = X(f.t), y = Y(f.flux); if (first) { ctx.moveTo(x, y); first = false; } else { ctx.lineTo(x, y); } });
+    ctx.stroke();
+    fr.forEach(function (f, i) { if (f.flux !== f.flux) { return; } ctx.fillStyle = i === S.i ? "#ffcc66" : "#6ea8ff"; ctx.beginPath(); ctx.arc(X(f.t), Y(f.flux), i === S.i ? 4.5 : 2.5, 0, 6.3); ctx.fill(); });
+    ctx.fillStyle = "#93a0b8"; ctx.font = "11px system-ui"; ctx.fillText(fmtDate(t0), pad, 11); ctx.textAlign = "right"; ctx.fillText(fmtDate(t1), W - pad, 11); ctx.textAlign = "left";
+    $("curveNote").textContent = "Brightness at the center of the picture over time (arbitrary units; background subtracted). Different exposures sample different colors within the detector, so small ups and downs are normal.";
+  }
+  function fillDetails(m) {
+    var rows = [["Searched RA", m.ra.toFixed(5) + "°"], ["Searched Dec", m.dec.toFixed(5) + "°"],
+      ["Center used", m.cra.toFixed(5) + ", " + m.cdec.toFixed(5)], ["Field of view", m.fov + "°"], ["Detector", m.det],
+      ["Exposures found", String(m.found)], ["Exposures used", m.used + (m.failed ? " (" + m.failed + " failed)" : "")],
+      ["First", m.from], ["Last", m.to]];
+    var dl = $("details"); dl.innerHTML = "";
+    rows.forEach(function (r) { var dt = document.createElement("dt"); dt.textContent = r[0]; var dd = document.createElement("dd"); dd.textContent = r[1]; dl.appendChild(dt); dl.appendChild(dd); });
   }
 
-  function show(i) {
-    if (!S.meta) { return; }
-    var n = S.meta.frames.length;
-    S.i = ((i % n) + n) % n;
-    var f = S.meta.frames[S.i];
-    $("frame").src = S.imgs[S.i].src;
-    $("label").textContent = f.date + "   (frame " + (S.i + 1) + " of " + n + ")";
-    $("scrub").value = S.i;
-  }
-
-  function stop() {
-    if (S.timer) { clearInterval(S.timer); }
-    S.timer = null;
-    S.playing = false;
-    $("play").textContent = "Play";
-  }
-
-  function start() {
-    stop();
-    S.playing = true;
-    $("play").textContent = "Pause";
-    S.timer = setInterval(function () { show(S.i + 1); }, Number($("speed").value));
-  }
-
+  // ====== URL ======
   function updateURL() {
     try {
       var p = new URLSearchParams();
-      p.set("target", S.meta.slug);
-      p.set("speed", $("speed").value);
+      p.set("ra", $("ra").value.trim()); p.set("dec", $("dec").value.trim()); p.set("fov", $("fov").value);
+      p.set("det", $("det").value); p.set("mode", $("mode").value); p.set("speed", $("speed").value);
+      if (Number($("pmra").value) || Number($("pmdec").value)) { p.set("pmra", $("pmra").value); p.set("pmdec", $("pmdec").value); p.set("epoch", $("epoch").value); }
       history.replaceState(null, "", "?" + p.toString());
-    } catch (e) { /* ignore, for example when opened as a local file */ }
+    } catch (e) { /* ignore */ }
   }
-
-  function fillDetails(m) {
-    var dates = m.frames.map(function (f) { return f.date; }).sort();
-    var rows = [
-      ["Center RA", Number(m.ra).toFixed(4) + " deg"],
-      ["Center Dec", Number(m.dec).toFixed(4) + " deg"],
-      ["Detector", m.detector || "unknown"],
-      ["Frames", String(m.frames.length)],
-      ["From", dates[0]],
-      ["To", dates[dates.length - 1]]
-    ];
-    var dl = $("details");
-    dl.innerHTML = "";
-    rows.forEach(function (r) {
-      var dt = document.createElement("dt"); dt.textContent = r[0];
-      var dd = document.createElement("dd"); dd.textContent = r[1];
-      dl.appendChild(dt); dl.appendChild(dd);
+  function fromURL() {
+    var p = new URLSearchParams(location.search), ok = false;
+    [["ra", "ra"], ["dec", "dec"], ["fov", "fov"], ["det", "det"], ["mode", "mode"], ["speed", "speed"], ["pmra", "pmra"], ["pmdec", "pmdec"], ["epoch", "epoch"], ["maxn", "maxn"]].forEach(function (k) {
+      if (p.get(k[0]) != null) { $(k[1]).value = p.get(k[0]); }
     });
-    $("note").textContent = m.note || "";
+    if (p.get("proxy")) { $("proxy").value = p.get("proxy"); try { localStorage.setItem("spx_proxy", p.get("proxy")); } catch (e) {} }
+    return p.get("ra") != null && p.get("dec") != null;
+  }
+  function loadExample(ex) {
+    $("name").value = ex.name || ex.label; $("ra").value = ex.ra; $("dec").value = ex.dec;
+    $("pmra").value = ex.pmra; $("pmdec").value = ex.pmdec; $("epoch").value = ex.epoch;
+    $("fov").value = ex.fov; $("det").value = ex.det; $("mode").value = ex.mode;
+    run();
   }
 
-  function loadTarget(slug) {
-    var m = S.metas.filter(function (x) { return x.slug === slug; })[0] || S.metas[0];
-    S.meta = m;
-    stop();
-    $("label").textContent = "Loading frames...";
-    var loads = m.frames.map(function (f) {
-      return new Promise(function (resolve, reject) {
-        var im = new Image();
-        im.onload = function () { resolve(im); };
-        im.onerror = function () { reject(new Error("could not load " + f.file)); };
-        im.src = "data/" + m.slug + "/" + f.file;
+  // ====== saved examples (pre-made frames shipped with the site) ======
+  async function loadSaved(slug) {
+    S.token++; stopPlay();
+    try {
+      var m = await (await fetch("data/" + slug + "/manifest.json", { cache: "no-cache" })).json();
+      status("Loading saved frames...");
+      var frames = await Promise.all(m.frames.map(function (f) {
+        return new Promise(function (res, rej) {
+          var im = new Image(); im.onload = function () { res(im); }; im.onerror = function () { rej(new Error("missing " + f.file)); };
+          im.src = "data/" + slug + "/" + f.file;
+        });
+      }));
+      var N = frames[0].naturalWidth, out = frames.map(function (im, i) {
+        var cv = document.createElement("canvas"); cv.width = im.naturalWidth; cv.height = im.naturalHeight;
+        cv.getContext("2d").drawImage(im, 0, 0);
+        return { canvas: cv, label: m.frames[i].date + "   (saved frame " + (i + 1) + " of " + frames.length + ")", flux: NaN, t: i };
       });
-    });
-    return Promise.all(loads).then(function (imgs) {
-      S.imgs = imgs;
-      $("scrub").max = m.frames.length - 1;
-      fillDetails(m);
-      applyFilter();
-      show(0);
-      start();
-      updateURL();
-    });
+      S.frames = out; S.i = 0; $("view").width = N; $("view").height = frames[0].naturalHeight;
+      $("scrub").max = out.length - 1; applyFilter(); show(0); startPlay();
+      status("Showing saved example: " + m.title + ".");
+    } catch (e) { status("Could not load the saved example: " + e.message, "err"); }
   }
 
+  // ====== wiring ======
   function wire() {
-    $("play").addEventListener("click", function () { if (S.playing) { stop(); } else { start(); } });
-    $("next").addEventListener("click", function () { stop(); show(S.i + 1); });
-    $("prev").addEventListener("click", function () { stop(); show(S.i - 1); });
-    $("scrub").addEventListener("input", function () { stop(); show(Number($("scrub").value)); });
-    $("speed").addEventListener("input", function () { if (S.playing) { start(); } if (S.meta) { updateURL(); } });
-    ["bright", "contrast", "invert"].forEach(function (id) { $(id).addEventListener("input", applyFilter); });
-    $("target").addEventListener("change", function () {
-      loadTarget($("target").value).catch(showError);
+    EXAMPLES.forEach(function (ex) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = ex.label;
+      b.addEventListener("click", function () { loadExample(ex); }); $("examples").appendChild(b);
     });
+    $("go").addEventListener("click", function () { run(); });
+    $("cancel").addEventListener("click", function () { S.token++; $("go").disabled = false; $("cancel").style.display = "none"; $("prog").style.display = "none"; status("Cancelled."); });
+    $("resolve").addEventListener("click", resolveName);
+    ["ra", "dec", "name"].forEach(function (id) { $(id).addEventListener("keydown", function (e) { if (e.key === "Enter") { if (id === "name") { resolveName(); } else { run(); } } }); });
+    $("play").addEventListener("click", function () { if (S.playing) { stopPlay(); } else { startPlay(); } });
+    $("next").addEventListener("click", function () { stopPlay(); show(S.i + 1); });
+    $("prev").addEventListener("click", function () { stopPlay(); show(S.i - 1); });
+    $("scrub").addEventListener("input", function () { stopPlay(); show(Number($("scrub").value)); });
+    $("speed").addEventListener("input", function () { if (S.playing) { startPlay(); } });
+    ["bright", "contrast", "invert", "showx"].forEach(function (id) { $(id).addEventListener("input", applyFilter); });
+    $("proxy").addEventListener("change", function () { try { localStorage.setItem("spx_proxy", $("proxy").value.trim()); } catch (e) {} });
+    $("loadSaved").addEventListener("click", function () { if ($("saved").value) { loadSaved($("saved").value); } });
     $("copy").addEventListener("click", function () {
+      updateURL();
       var done = function () { $("copy").textContent = "Link copied"; setTimeout(function () { $("copy").textContent = "Copy link to this view"; }, 1500); };
-      if (navigator.clipboard) { navigator.clipboard.writeText(location.href).then(done); } else { done(); }
+      if (navigator.clipboard) { navigator.clipboard.writeText(location.href).then(done, done); } else { done(); }
     });
     document.addEventListener("keydown", function (e) {
       var tag = (e.target && e.target.tagName) || "";
-      if (tag === "INPUT" || tag === "SELECT" || tag === "BUTTON") { return; }
-      if (e.key === " ") { e.preventDefault(); if (S.playing) { stop(); } else { start(); } }
-      if (e.key === "ArrowRight") { stop(); show(S.i + 1); }
-      if (e.key === "ArrowLeft") { stop(); show(S.i - 1); }
+      if (tag === "INPUT" || tag === "SELECT" || tag === "BUTTON" || tag === "TEXTAREA") { return; }
+      if (e.key === " ") { e.preventDefault(); if (S.playing) { stopPlay(); } else { startPlay(); } }
+      if (e.key === "ArrowRight") { stopPlay(); show(S.i + 1); }
+      if (e.key === "ArrowLeft") { stopPlay(); show(S.i - 1); }
     });
   }
 
-  function showError(err) {
-    $("label").textContent = "Could not load the image data: " + err.message +
-      ". If you opened this file directly from your computer, view it through GitHub Pages or a local web server instead.";
-  }
-
-  function init() {
+  async function init() {
     wire();
-    getJSON("data/targets.json").then(function (slugs) {
-      return Promise.all(slugs.map(function (s) { return getJSON("data/" + s + "/manifest.json"); }));
-    }).then(function (metas) {
-      if (!metas.length) { throw new Error("no targets found in data/targets.json"); }
-      S.metas = metas;
-      var sel = $("target");
-      metas.forEach(function (m) {
-        var o = document.createElement("option");
-        o.value = m.slug; o.textContent = m.title;
-        sel.appendChild(o);
-      });
-      var p = new URLSearchParams(location.search);
-      if (p.get("speed")) { $("speed").value = p.get("speed"); }
-      var want = p.get("target");
-      if (want && metas.some(function (m) { return m.slug === want; })) { sel.value = want; }
-      return loadTarget(sel.value);
-    }).catch(showError);
+    try { var sp = localStorage.getItem("spx_proxy"); if (sp) { $("proxy").value = sp; } } catch (e) {}
+    if (!$("proxy").value && DEFAULT_PROXY) { $("proxy").value = DEFAULT_PROXY; }
+    var legacy = new URLSearchParams(location.search).get("target");
+    try {
+      var slugs = await (await fetch("data/targets.json", { cache: "no-cache" })).json();
+      var metas = await Promise.all(slugs.map(function (s) { return fetch("data/" + s + "/manifest.json").then(function (r) { return r.json(); }); }));
+      metas.forEach(function (m) { var o = document.createElement("option"); o.value = m.slug; o.textContent = m.title; $("saved").appendChild(o); });
+    } catch (e) { $("saved").innerHTML = "<option value=''>(none)</option>"; }
+    var hasQuery = fromURL();
+    if (hasQuery) { run(); }
+    else if (legacy && $("saved").querySelector("option[value='" + legacy + "']")) { $("saved").value = legacy; loadSaved(legacy); }
   }
-
   init();
+  window.__spx = { parseAngle: parseAngle, parseFits: parseFits, resample: resample, run: run };
 })();
 </script>
 </body>
