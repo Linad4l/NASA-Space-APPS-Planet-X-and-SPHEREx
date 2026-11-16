@@ -1,0 +1,70 @@
+{
+ "slug": "wise-0855",
+ "title": "WISE 0855",
+ "ra": 133.7951321,
+ "dec": -7.24515,
+ "note": "Fast-moving brown dwarf. Very faint, so it may be hard to see.",
+ "detector": "SPHEREx-D6",
+ "frames": [
+  {
+   "file": "frame_00.png",
+   "date": "2025-05-05",
+   "obs_id": "2025W19_1B_0116_1"
+  },
+  {
+   "file": "frame_01.png",
+   "date": "2025-11-10",
+   "obs_id": "2025W46_1A_0076_1"
+  },
+  {
+   "file": "frame_02.png",
+   "date": "2025-11-10",
+   "obs_id": "2025W46_1A_0090_2"
+  },
+  {
+   "file": "frame_03.png",
+   "date": "2025-11-14",
+   "obs_id": "2025W46_2A_0214_1"
+  },
+  {
+   "file": "frame_04.png",
+   "date": "2025-11-14",
+   "obs_id": "2025W46_2A_0226_1"
+  },
+  {
+   "file": "frame_05.png",
+   "date": "2025-11-14",
+   "obs_id": "2025W46_2A_0289_1"
+  },
+  {
+   "file": "frame_06.png",
+   "date": "2026-04-21",
+   "obs_id": "2026W17_1B_0227_2"
+  },
+  {
+   "file": "frame_07.png",
+   "date": "2026-04-22",
+   "obs_id": "2026W17_1B_0507_2"
+  },
+  {
+   "file": "frame_08.png",
+   "date": "2026-04-23",
+   "obs_id": "2026W17_1B_0634_3"
+  },
+  {
+   "file": "frame_09.png",
+   "date": "2026-04-26",
+   "obs_id": "2026W17_2A_0609_2"
+  },
+  {
+   "file": "frame_10.png",
+   "date": "2026-05-08",
+   "obs_id": "2026W19_2A_0568_1"
+  },
+  {
+   "file": "frame_11.png",
+   "date": "2026-05-11",
+   "obs_id": "2026W20_1A_0033_1"
+  }
+ ]
+}

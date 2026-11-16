@@ -1,0 +1,70 @@
+{
+ "slug": "rw-aurigae",
+ "title": "RW Aurigae",
+ "ra": 76.9565,
+ "dec": 30.4014,
+ "note": "Variable star.",
+ "detector": "SPHEREx-D2",
+ "frames": [
+  {
+   "file": "frame_00.png",
+   "date": "2025-09-08",
+   "obs_id": "2025W37_1A_0068_1"
+  },
+  {
+   "file": "frame_01.png",
+   "date": "2025-09-08",
+   "obs_id": "2025W37_1A_0124_1"
+  },
+  {
+   "file": "frame_02.png",
+   "date": "2025-09-09",
+   "obs_id": "2025W37_1A_0366_3"
+  },
+  {
+   "file": "frame_03.png",
+   "date": "2025-09-09",
+   "obs_id": "2025W37_1A_0379_4"
+  },
+  {
+   "file": "frame_04.png",
+   "date": "2026-03-01",
+   "obs_id": "2026W09_2A_0503_2"
+  },
+  {
+   "file": "frame_05.png",
+   "date": "2026-03-02",
+   "obs_id": "2026W10_1A_0092_3"
+  },
+  {
+   "file": "frame_06.png",
+   "date": "2026-03-05",
+   "obs_id": "2026W10_1A_0639_3"
+  },
+  {
+   "file": "frame_07.png",
+   "date": "2026-03-07",
+   "obs_id": "2026W10_2B_0340_4"
+  },
+  {
+   "file": "frame_08.png",
+   "date": "2026-09-10",
+   "obs_id": "2026W37_1A_0615_4"
+  },
+  {
+   "file": "frame_09.png",
+   "date": "2026-09-12",
+   "obs_id": "2026W37_2A_0516_3"
+  },
+  {
+   "file": "frame_10.png",
+   "date": "2026-09-14",
+   "obs_id": "2026W38_1A_0064_2"
+  },
+  {
+   "file": "frame_11.png",
+   "date": "2026-09-15",
+   "obs_id": "2026W38_1A_0254_3"
+  }
+ ]
+}

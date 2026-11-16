@@ -1,0 +1,70 @@
+{
+ "slug": "epsilon-indi",
+ "title": "Epsilon Indi (A + B)",
+ "ra": 330.8402,
+ "dec": -56.786,
+ "note": "Wide field centered on the bright star. The brown dwarf pair B is a few arcminutes away.",
+ "detector": "SPHEREx-D6",
+ "frames": [
+  {
+   "file": "frame_00.png",
+   "date": "2025-04-29",
+   "obs_id": "2025W18_1B_0081_2"
+  },
+  {
+   "file": "frame_01.png",
+   "date": "2025-04-30",
+   "obs_id": "2025W18_1B_0238_2"
+  },
+  {
+   "file": "frame_02.png",
+   "date": "2025-05-07",
+   "obs_id": "2025W19_1B_0344_3"
+  },
+  {
+   "file": "frame_03.png",
+   "date": "2025-09-27",
+   "obs_id": "2025W39_2A_0328_2"
+  },
+  {
+   "file": "frame_04.png",
+   "date": "2025-09-28",
+   "obs_id": "2025W39_2A_0693_4"
+  },
+  {
+   "file": "frame_05.png",
+   "date": "2025-09-29",
+   "obs_id": "2025W40_1A_0185_1"
+  },
+  {
+   "file": "frame_06.png",
+   "date": "2025-10-30",
+   "obs_id": "2025W44_2B_0058_1"
+  },
+  {
+   "file": "frame_07.png",
+   "date": "2026-04-29",
+   "obs_id": "2026W18_1A_0490_1"
+  },
+  {
+   "file": "frame_08.png",
+   "date": "2026-09-22",
+   "obs_id": "2026W39_1A_0276_4"
+  },
+  {
+   "file": "frame_09.png",
+   "date": "2026-09-25",
+   "obs_id": "2026W39_2A_0155_4"
+  },
+  {
+   "file": "frame_10.png",
+   "date": "2026-09-27",
+   "obs_id": "2026W39_2A_0597_2"
+  },
+  {
+   "file": "frame_11.png",
+   "date": "2026-09-28",
+   "obs_id": "2026W40_1A_0070_2"
+  }
+ ]
+}

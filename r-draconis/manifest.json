@@ -1,0 +1,70 @@
+{
+ "slug": "r-draconis",
+ "title": "R Draconis",
+ "ra": 248.167,
+ "dec": 66.755,
+ "note": "Variable star.",
+ "detector": "SPHEREx-D2",
+ "frames": [
+  {
+   "file": "frame_00.png",
+   "date": "2025-06-08",
+   "obs_id": "2025W23_2B_0696_1"
+  },
+  {
+   "file": "frame_01.png",
+   "date": "2025-06-10",
+   "obs_id": "2025W24_1A_0215_2"
+  },
+  {
+   "file": "frame_02.png",
+   "date": "2025-06-21",
+   "obs_id": "2025W25_2A_0441_2"
+  },
+  {
+   "file": "frame_03.png",
+   "date": "2025-06-25",
+   "obs_id": "2025W26_1A_0517_1"
+  },
+  {
+   "file": "frame_04.png",
+   "date": "2025-07-02",
+   "obs_id": "2025W27_1A_0555_2"
+  },
+  {
+   "file": "frame_05.png",
+   "date": "2025-11-28",
+   "obs_id": "2025W48_2A_0243_2"
+  },
+  {
+   "file": "frame_06.png",
+   "date": "2025-12-02",
+   "obs_id": "2025W49_1A_0280_1"
+  },
+  {
+   "file": "frame_07.png",
+   "date": "2025-12-10",
+   "obs_id": "2025W50_1A_0661_4"
+  },
+  {
+   "file": "frame_08.png",
+   "date": "2025-12-12",
+   "obs_id": "2025W50_2A_0301_3"
+  },
+  {
+   "file": "frame_09.png",
+   "date": "2026-06-21",
+   "obs_id": "2026W25_2A_0573_2"
+  },
+  {
+   "file": "frame_10.png",
+   "date": "2026-06-22",
+   "obs_id": "2026W26_1A_0047_1"
+  },
+  {
+   "file": "frame_11.png",
+   "date": "2026-06-23",
+   "obs_id": "2026W26_1A_0324_3"
+  }
+ ]
+}
