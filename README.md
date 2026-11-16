@@ -1,6 +1,6 @@
 # Starfire's Flipbook
 
-A free web tool (a "blink" tool for NASA SPHEREx data) that lets anyone flip through NASA SPHEREx infrared images of a patch of sky, like a short video, to spot objects that **move** or **change brightness**. Built for the NASA Space Apps Challenge 2026.
+A free web tool (a "blink" tool for NASA SPHEREx data) that lets anyone flip through NASA SPHEREx infrared images of a patch of sky, like a flipbook or short video, to spot objects that **move** or **change brightness**. Built for the NASA Space Apps Challenge 2026.
 
 **Try it:** https://linad4l.github.io/NASA-Space-APPS-Planet-X-and-SPHEREx/
 
@@ -60,4 +60,4 @@ Open `index.html` in a browser, or host the repo on GitHub Pages. To use your ow
 
 ## Team
 
-NASA Space Apps Challenge 2026, San Jose State University team. (Add team names here.)
+NASA Space Apps Challenge 2026, San Jose State University team "StarFire" - Lina Bourouha, Laila Ben Ameur, Sarah Ayadi, Mariam Jamil
