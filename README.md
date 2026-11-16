@@ -44,15 +44,32 @@ Barnard's Star, Epsilon Indi (A + B), WISE 0855, RW Aurigae, R Draconis. Each ha
 
 SPHEREx images come from the NASA/IPAC Infrared Science Archive (IRSA). SPHEREx is a NASA mission operated by JPL and Caltech. Target coordinates and proper motions were checked in SIMBAD.
 
-## Known limits
+How to get the best results
 
-- SPHEREx exposures are small and have 6.15 arcsecond pixels, and the mission has only been observing since 2025. Slow movers shift by only a pixel or two, so motion is subtle compared with long-baseline tools like WiseView.
-- Each exposure covers a limited area, so a target near an exposure edge shows dark blue "no data" areas. Mostly empty exposures are skipped by default.
-- The very bright cores of stars can be missing (detector saturation).
-- Frames are aligned using the basic image coordinates only. Small distortion terms are ignored, so stars near an exposure edge can be off by a few pixels.
-- Name lookup works for the built-in targets. Other names may fail, so enter coordinates instead.
-- Not built yet: Gaia and WISE overlays, spectra, per-detector co-adds, explanation of individual quality-flag bits.
-- The NASA archive is sometimes slow or busy. The tool retries, and if it still fails, try again in a minute.
+Quick start: Press one of the target buttons (for example Barnard's Star), then press Make flipbook. A run takes about one to two minutes because the images come live from NASA.
+
+Recommended settings
+
+Setting	Best choice	Why
+Field of view	0.1° (6 arcminutes)	Wide enough to see neighbors, small enough to see detail. Use 0.4° for a wide system like Epsilon Indi, or a small custom value (0.03° to 0.05°) to zoom in on a mover.
+Detector	D6 (4.4 to 5.0 microns) for cool brown dwarfs. D2 (1.1 to 1.6 microns) for ordinary stars and variable stars	Cool objects glow brightest at longer wavelengths. Ordinary stars are brighter at shorter ones.
+What to show	One stacked image per epoch to spot movers, or Epoch minus first epoch to see only what changed	Stacking averages each visit into a cleaner picture, and subtraction cancels out the unchanging stars.
+Max exposures	24 (default)	A good balance of coverage and speed. Raise it to 48 or 96 for more dates.
+Skip partly-empty exposures	Yes (default)	Hides frames where your target is near an exposure edge.
+Speed	Slower for movers, faster for variables	Slow playback makes small shifts easier to follow.
+
+What to look for
+
+Moving objects (asteroids, nearby stars, brown dwarfs): Watch one dot against the fixed background stars. It slides slowly across the frame from one visit to the next.
+Variable objects (variable stars, supernovae, quasars): Watch for a dot that gets brighter or dimmer without moving. The chart under the flipbook shows brightness at the center over time.
+Epoch minus first epoch: A mover appears as a bright spot beside a dark spot. A brightening or dimming object appears as a single bright or dark blob.
+
+Tips
+
+Pick a smaller field of view to make slow motion bigger on screen.
+If the NASA archive is busy and a run fails, wait a minute and press Make flipbook again.
+Use Copy link to this view to share the exact settings with someone.
+The tool includes saved examples, so you can still see a flipbook when the archive is slow.
 
 ## Run it yourself
 
