@@ -6,38 +6,39 @@
 <title>Starfire's Flipbook</title>
 <meta name="description" content="Starfire's Flipbook: type sky coordinates and blink through SPHEREx infrared images of that patch to spot moving or changing objects.">
 <style>
-  :root { --bg:#070418; --card:#120b2e; --ink:#f1ecff; --muted:#a79fcb; --accent:#b794ff; --accent2:#ff7ad9; --line:#33266b; --warn:#ffcc66; --bad:#ff8a8a; --field:#1b1245; }
+  :root { --bg:#14031f; --card:#2a0d47; --ink:#fff7ff; --muted:#d3bdf0; --accent:#7dff3a; --accent2:#ff2fa0; --line:#000; --warn:#ffb36b; --bad:#ff9ab8; --field:#3d1766; --pink:#e6007a; --purple:#7a22a8; --lav:#a9a4d6; --skin:#f4954f; --green:#7dff3a; }
   * { box-sizing: border-box; }
   body { margin:0; background:
-    radial-gradient(1.2px 1.2px at 12% 18%,#fff 60%,transparent),radial-gradient(1px 1px at 78% 8%,#cfc3ff 60%,transparent),
-    radial-gradient(1.4px 1.4px at 55% 42%,#fff 60%,transparent),radial-gradient(1px 1px at 90% 66%,#ffd6f3 60%,transparent),
+    radial-gradient(1.2px 1.2px at 12% 18%,#fff 60%,transparent),radial-gradient(1.6px 1.6px at 78% 8%,#7dff3a 60%,transparent),
+    radial-gradient(1.4px 1.4px at 55% 42%,#fff 60%,transparent),radial-gradient(1.6px 1.6px at 90% 66%,#ff7ad9 60%,transparent),
     radial-gradient(1.2px 1.2px at 30% 80%,#cfc3ff 60%,transparent),radial-gradient(1px 1px at 66% 92%,#fff 60%,transparent),
-    radial-gradient(800px 500px at 85% -5%,rgba(255,122,217,.22),transparent),radial-gradient(900px 600px at 5% 10%,rgba(120,90,255,.28),transparent),
-    var(--bg); background-attachment:fixed; color:var(--ink); font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+    radial-gradient(800px 500px at 85% -5%,rgba(230,0,122,.30),transparent),radial-gradient(900px 600px at 5% 10%,rgba(122,34,168,.40),transparent),
+    var(--bg); background-attachment:fixed; color:var(--ink); font:16px/1.5 ui-rounded,"Arial Rounded MT Bold","Nunito","Segoe UI",system-ui,sans-serif; }
   header, main, footer, .how { max-width: 1040px; margin: 0 auto; padding-left: 16px; padding-right: 16px; }
   header { padding-top: 24px; padding-bottom: 8px; }
-  h1 { margin:0 0 2px; font-size:2rem; letter-spacing:.3px; background:linear-gradient(90deg,#ffd479,#ff7ad9 45%,#b794ff); -webkit-background-clip:text; background-clip:text; color:transparent; }
-  .spark { -webkit-text-fill-color:#ffd479; }
-  .tag { color:var(--accent); font-size:.85rem; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+  h1 { margin:0 0 4px; font-size:2.3rem; font-weight:900; letter-spacing:.5px; color:#ff3aa8; -webkit-text-stroke:2px #000; paint-order:stroke fill; text-shadow:4px 4px 0 #000, 7px 7px 0 #7dff3a; }
+  .spark { color:#7dff3a; }
+  .tag { display:inline-block; background:var(--purple); color:#fff; border:2px solid #000; border-radius:999px; padding:2px 12px; font-size:.8rem; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; margin:8px 0 10px; box-shadow:3px 3px 0 #000; }
   header p { margin:0; color:var(--muted); }
   main { display:grid; gap:16px; grid-template-columns:minmax(0,1fr) 340px; padding-top:12px; padding-bottom:24px; }
   @media (max-width: 800px) { main { grid-template-columns: 1fr; } }
-  .card { background:rgba(18,11,46,.88); border:1px solid var(--line); border-radius:14px; padding:16px; box-shadow:0 0 28px rgba(150,110,255,.12); }
+  .card { background:var(--card); border:3px solid #000; border-radius:18px; padding:16px; box-shadow:6px 6px 0 var(--pink); }
   .viewer { display:flex; flex-direction:column; align-items:center; gap:12px; }
-  .stage { position:relative; width:100%; max-width:560px; aspect-ratio:1/1; background:#000; border-radius:8px; overflow:hidden; }
+  .stage { position:relative; width:100%; max-width:560px; aspect-ratio:1/1; background:#000; border:3px solid #000; outline:3px solid var(--green); border-radius:10px; overflow:hidden; }
   .stage canvas { width:100%; height:100%; display:block; image-rendering:pixelated; }
   .stage svg { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
   .label { font-variant-numeric:tabular-nums; text-align:center; min-height:1.5em; }
   .controls { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
-  button { background:#241a5c; color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:8px 16px; font:inherit; cursor:pointer; }
-  button:hover { border-color:var(--accent); }
-  button.primary { background:linear-gradient(90deg,#6d43d9,#d9489f); border-color:#b794ff; font-weight:600; }
-  button.primary:hover { filter:brightness(1.12); }
+  button { background:var(--purple); color:#fff; border:2px solid #000; border-radius:12px; padding:8px 16px; font:inherit; font-weight:800; cursor:pointer; box-shadow:3px 3px 0 #000; }
+  button:hover { background:#8f33c2; }
+  button:active { transform:translate(2px,2px); box-shadow:1px 1px 0 #000; }
+  button.primary { background:var(--pink); font-weight:900; font-size:1.05rem; }
+  button.primary:hover { background:#ff1a95; }
   button:disabled { opacity:.5; cursor:default; }
   button:focus-visible, input:focus-visible, select:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
   input[type=range] { width:100%; accent-color:var(--accent); }
   .viewer input[type=range] { max-width:560px; }
-  input[type=text], input[type=number], select { width:100%; background:var(--field); color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:8px; font:inherit; }
+  input[type=text], input[type=number], select { width:100%; background:var(--field); color:var(--ink); border:2px solid #000; border-radius:10px; padding:8px; font:inherit; }
   .side { display:flex; flex-direction:column; gap:12px; }
   .side label, .lab { color:var(--muted); font-size:.9rem; display:block; margin-bottom:2px; }
   .two { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
@@ -45,7 +46,7 @@
   .check { display:flex !important; align-items:center; gap:8px; }
   .examples { display:flex; flex-wrap:wrap; gap:6px; }
   .examples button { padding:4px 10px; font-size:.85rem; }
-  details { border-top:1px solid var(--line); padding-top:8px; }
+  details { border-top:2px dashed #7a22a8; padding-top:8px; }
   summary { cursor:pointer; color:var(--muted); font-size:.9rem; }
   dl { margin:0; display:grid; grid-template-columns:auto 1fr; gap:4px 12px; font-size:.9rem; }
   dt { color:var(--muted); } dd { margin:0; font-variant-numeric:tabular-nums; word-break:break-word; }
@@ -53,22 +54,22 @@
   .status { font-size:.9rem; color:var(--muted); min-height:1.4em; }
   .status.err { color:var(--bad); } .status.warn { color:var(--warn); }
   progress { width:100%; height:8px; }
-  #curve { width:100%; max-width:560px; height:110px; background:#0d0825; border-radius:8px; }
+  #curve { width:100%; max-width:560px; height:110px; background:#1a0630; border:2px solid #000; border-radius:10px; }
   .how .card h2 { margin:0 0 8px; font-size:1.1rem; }
   .how .card p { margin:0 0 8px; color:var(--muted); }
   .how { margin-bottom:24px; }
   .how ol, .how ul { margin:0 0 12px; padding-left:22px; color:var(--muted); }
   .how li { margin-bottom:6px; }
-  .how code { background:var(--field); padding:1px 5px; border-radius:4px; color:var(--ink); }
+  .how code { background:var(--field); border:1px solid #000; padding:1px 5px; border-radius:4px; color:var(--ink); }
   .how b { color:var(--ink); }
   .caption { text-align:center; margin-top:2px; }
-  .caption .big { font-size:1.2rem; font-weight:600; }
+  .caption .big { font-size:1.25rem; font-weight:900; color:#fff; }
   .caption .sub { color:var(--muted); font-size:.9rem; }
   footer { padding-top:8px; padding-bottom:32px; color:var(--muted); font-size:.85rem; }
   footer p { margin:0 0 8px; }
   a { color:var(--accent); }
   .embed header, .embed .how { display:none; }
-  hr { border:0; border-top:1px solid var(--line); width:100%; margin:0; }
+  hr { border:0; border-top:2px dashed #7a22a8; width:100%; margin:0; }
 </style>
 </head>
 <body>
@@ -84,7 +85,7 @@
     <div class="stage">
       <canvas id="view" width="117" height="117" aria-label="SPHEREx sky image cutout"></canvas>
       <svg id="cross" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-        <g stroke="#ffd479" stroke-width=".5" opacity=".9">
+        <g stroke="#7dff3a" stroke-width=".7" opacity=".95">
           <line x1="50" y1="36" x2="50" y2="45"/><line x1="50" y1="55" x2="50" y2="64"/>
           <line x1="36" y1="50" x2="45" y2="50"/><line x1="55" y1="50" x2="64" y2="50"/>
         </g>
@@ -189,7 +190,7 @@
     </ol>
     <h2>What you are looking at</h2>
     <ul>
-      <li><b>Sky stays fixed:</b> the picture does not follow any object. Stars stay in place and anything that moves drifts across the frame. The gold marks show the center of your patch.</li>
+      <li><b>Sky stays fixed:</b> the picture does not follow any object. Stars stay in place and anything that moves drifts across the frame. The green marks show the center of your patch.</li>
       <li><b>Chart under the picture:</b> brightness at the center over time. A real trend over months can mean a variable star.</li>
       <li><b>Dark blue pixels:</b> the exposure has no data there (each SPHEREx exposure covers a limited area; by default we skip exposures that are mostly empty). The core of a very bright star is also missing, because the detector saturates.</li>
       <li><b>Flagged pixels:</b> the share of pixels that carry a quality flag from SPHEREx. It is a hint to look closer, not a verdict. See the SPHEREx documentation for what each flag means.</li>
@@ -684,11 +685,11 @@
     var ts = fr.map(function (f) { return f.t; }), t0 = Math.min.apply(null, ts), t1 = Math.max.apply(null, ts) || 1;
     function X(t) { return pad + (t1 === t0 ? 0.5 : (t - t0) / (t1 - t0)) * (W - 2 * pad); }
     function Y(v) { return H - pad - (v - mn) / (mx - mn) * (H - 2 * pad); }
-    ctx.strokeStyle = "#33266b"; ctx.beginPath(); ctx.moveTo(pad, H - pad); ctx.lineTo(W - pad, H - pad); ctx.stroke();
-    ctx.strokeStyle = "#b794ff"; ctx.beginPath(); var first = true;
+    ctx.strokeStyle = "#7a22a8"; ctx.beginPath(); ctx.moveTo(pad, H - pad); ctx.lineTo(W - pad, H - pad); ctx.stroke();
+    ctx.strokeStyle = "#7dff3a"; ctx.beginPath(); var first = true;
     fr.forEach(function (f) { if (f.flux !== f.flux) { return; } var x = X(f.t), y = Y(f.flux); if (first) { ctx.moveTo(x, y); first = false; } else { ctx.lineTo(x, y); } });
     ctx.stroke();
-    fr.forEach(function (f, i) { if (f.flux !== f.flux) { return; } ctx.fillStyle = i === S.i ? "#ffd479" : "#ff7ad9"; ctx.beginPath(); ctx.arc(X(f.t), Y(f.flux), i === S.i ? 4.5 : 2.5, 0, 6.3); ctx.fill(); });
+    fr.forEach(function (f, i) { if (f.flux !== f.flux) { return; } ctx.fillStyle = i === S.i ? "#f4954f" : "#ff2fa0"; ctx.beginPath(); ctx.arc(X(f.t), Y(f.flux), i === S.i ? 4.5 : 2.5, 0, 6.3); ctx.fill(); });
     ctx.fillStyle = "#93a0b8"; ctx.font = "11px system-ui"; ctx.fillText(fmtDate(t0), pad, 11); ctx.textAlign = "right"; ctx.fillText(fmtDate(t1), W - pad, 11); ctx.textAlign = "left";
     $("curveNote").textContent = "Brightness at the center of the picture over time (arbitrary units; background subtracted). Different exposures sample different colors within the detector, so small ups and downs are normal.";
   }
