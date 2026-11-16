@@ -3,33 +3,41 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SPHEREx Blink</title>
-<meta name="description" content="Type sky coordinates and blink through SPHEREx infrared images of that patch to spot moving or changing objects.">
+<title>Starfire's Flipbook</title>
+<meta name="description" content="Starfire's Flipbook: type sky coordinates and blink through SPHEREx infrared images of that patch to spot moving or changing objects.">
 <style>
-  :root { --bg:#0b0f17; --card:#141b29; --ink:#e8edf6; --muted:#93a0b8; --accent:#6ea8ff; --line:#243049; --warn:#ffcc66; --bad:#ff8a8a; }
+  :root { --bg:#070418; --card:#120b2e; --ink:#f1ecff; --muted:#a79fcb; --accent:#b794ff; --accent2:#ff7ad9; --line:#33266b; --warn:#ffcc66; --bad:#ff8a8a; --field:#1b1245; }
   * { box-sizing: border-box; }
-  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  body { margin:0; background:
+    radial-gradient(1.2px 1.2px at 12% 18%,#fff 60%,transparent),radial-gradient(1px 1px at 78% 8%,#cfc3ff 60%,transparent),
+    radial-gradient(1.4px 1.4px at 55% 42%,#fff 60%,transparent),radial-gradient(1px 1px at 90% 66%,#ffd6f3 60%,transparent),
+    radial-gradient(1.2px 1.2px at 30% 80%,#cfc3ff 60%,transparent),radial-gradient(1px 1px at 66% 92%,#fff 60%,transparent),
+    radial-gradient(800px 500px at 85% -5%,rgba(255,122,217,.22),transparent),radial-gradient(900px 600px at 5% 10%,rgba(120,90,255,.28),transparent),
+    var(--bg); background-attachment:fixed; color:var(--ink); font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
   header, main, footer, .how { max-width: 1040px; margin: 0 auto; padding-left: 16px; padding-right: 16px; }
   header { padding-top: 24px; padding-bottom: 8px; }
-  h1 { margin:0 0 4px; font-size:1.7rem; }
+  h1 { margin:0 0 2px; font-size:2rem; letter-spacing:.3px; background:linear-gradient(90deg,#ffd479,#ff7ad9 45%,#b794ff); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .spark { -webkit-text-fill-color:#ffd479; }
+  .tag { color:var(--accent); font-size:.85rem; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
   header p { margin:0; color:var(--muted); }
   main { display:grid; gap:16px; grid-template-columns:minmax(0,1fr) 340px; padding-top:12px; padding-bottom:24px; }
   @media (max-width: 800px) { main { grid-template-columns: 1fr; } }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; }
+  .card { background:rgba(18,11,46,.88); border:1px solid var(--line); border-radius:14px; padding:16px; box-shadow:0 0 28px rgba(150,110,255,.12); }
   .viewer { display:flex; flex-direction:column; align-items:center; gap:12px; }
   .stage { position:relative; width:100%; max-width:560px; aspect-ratio:1/1; background:#000; border-radius:8px; overflow:hidden; }
   .stage canvas { width:100%; height:100%; display:block; image-rendering:pixelated; }
   .stage svg { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
   .label { font-variant-numeric:tabular-nums; text-align:center; min-height:1.5em; }
   .controls { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
-  button { background:#1d2840; color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:8px 16px; font:inherit; cursor:pointer; }
+  button { background:#241a5c; color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:8px 16px; font:inherit; cursor:pointer; }
   button:hover { border-color:var(--accent); }
-  button.primary { background:#2a4a85; border-color:#3d66b3; font-weight:600; }
+  button.primary { background:linear-gradient(90deg,#6d43d9,#d9489f); border-color:#b794ff; font-weight:600; }
+  button.primary:hover { filter:brightness(1.12); }
   button:disabled { opacity:.5; cursor:default; }
   button:focus-visible, input:focus-visible, select:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
   input[type=range] { width:100%; accent-color:var(--accent); }
   .viewer input[type=range] { max-width:560px; }
-  input[type=text], input[type=number], select { width:100%; background:#1d2840; color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:8px; font:inherit; }
+  input[type=text], input[type=number], select { width:100%; background:var(--field); color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:8px; font:inherit; }
   .side { display:flex; flex-direction:column; gap:12px; }
   .side label, .lab { color:var(--muted); font-size:.9rem; display:block; margin-bottom:2px; }
   .two { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
@@ -45,13 +53,13 @@
   .status { font-size:.9rem; color:var(--muted); min-height:1.4em; }
   .status.err { color:var(--bad); } .status.warn { color:var(--warn); }
   progress { width:100%; height:8px; }
-  #curve { width:100%; max-width:560px; height:110px; background:#0f1522; border-radius:8px; }
+  #curve { width:100%; max-width:560px; height:110px; background:#0d0825; border-radius:8px; }
   .how .card h2 { margin:0 0 8px; font-size:1.1rem; }
   .how .card p { margin:0 0 8px; color:var(--muted); }
   .how { margin-bottom:24px; }
   .how ol, .how ul { margin:0 0 12px; padding-left:22px; color:var(--muted); }
   .how li { margin-bottom:6px; }
-  .how code { background:#1d2840; padding:1px 5px; border-radius:4px; color:var(--ink); }
+  .how code { background:var(--field); padding:1px 5px; border-radius:4px; color:var(--ink); }
   .how b { color:var(--ink); }
   .caption { text-align:center; margin-top:2px; }
   .caption .big { font-size:1.2rem; font-weight:600; }
@@ -66,7 +74,8 @@
 <body>
 
 <header>
-  <h1>SPHEREx Blink</h1>
+  <h1><span class="spark">&#10022;</span> Starfire's Flipbook</h1>
+  <div class="tag">A sky blink tool for NASA's SPHEREx telescope</div>
   <p>Enter the coordinates of a patch of sky to see it in infrared light from NASA's SPHEREx space telescope. Flip through images taken months apart, like a short video, to spot objects that move or change brightness.</p>
 </header>
 
@@ -75,7 +84,7 @@
     <div class="stage">
       <canvas id="view" width="117" height="117" aria-label="SPHEREx sky image cutout"></canvas>
       <svg id="cross" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-        <g stroke="#6ea8ff" stroke-width=".5" opacity=".9">
+        <g stroke="#ffd479" stroke-width=".5" opacity=".9">
           <line x1="50" y1="36" x2="50" y2="45"/><line x1="50" y1="55" x2="50" y2="64"/>
           <line x1="36" y1="50" x2="45" y2="50"/><line x1="55" y1="50" x2="64" y2="50"/>
         </g>
@@ -169,7 +178,7 @@
 
 <div class="how">
   <div class="card">
-    <h2>How to use SPHEREx Blink</h2>
+    <h2>How to use Starfire's Flipbook</h2>
     <ol>
       <li><b>Pick a spot in the sky.</b> Press one of the example buttons (Barnard's Star, WISE 0855, Epsilon Indi, RW Aurigae, R Draconis), or type a Right Ascension (RA) and Declination (Dec). Degrees like <code>133.795</code> work, and so do <code>08h55m10.8s</code> and <code>-7d14m42.5s</code>. You can also type an object's name and press Look up.</li>
       <li><b>Choose how much sky and which color.</b> Field of view sets the size of the patch (bigger shows more sky but takes longer to download). Detector D1 to D6 picks the infrared wavelength range.</li>
@@ -180,7 +189,7 @@
     </ol>
     <h2>What you are looking at</h2>
     <ul>
-      <li><b>Sky stays fixed:</b> the picture does not follow any object. Stars stay in place and anything that moves drifts across the frame. The blue marks show the center of your patch.</li>
+      <li><b>Sky stays fixed:</b> the picture does not follow any object. Stars stay in place and anything that moves drifts across the frame. The gold marks show the center of your patch.</li>
       <li><b>Chart under the picture:</b> brightness at the center over time. A real trend over months can mean a variable star.</li>
       <li><b>Dark blue pixels:</b> the exposure has no data there (each SPHEREx exposure covers a limited area; by default we skip exposures that are mostly empty). The core of a very bright star is also missing, because the detector saturates.</li>
       <li><b>Flagged pixels:</b> the share of pixels that carry a quality flag from SPHEREx. It is a hint to look closer, not a verdict. See the SPHEREx documentation for what each flag means.</li>
@@ -675,11 +684,11 @@
     var ts = fr.map(function (f) { return f.t; }), t0 = Math.min.apply(null, ts), t1 = Math.max.apply(null, ts) || 1;
     function X(t) { return pad + (t1 === t0 ? 0.5 : (t - t0) / (t1 - t0)) * (W - 2 * pad); }
     function Y(v) { return H - pad - (v - mn) / (mx - mn) * (H - 2 * pad); }
-    ctx.strokeStyle = "#243049"; ctx.beginPath(); ctx.moveTo(pad, H - pad); ctx.lineTo(W - pad, H - pad); ctx.stroke();
-    ctx.strokeStyle = "#6ea8ff"; ctx.beginPath(); var first = true;
+    ctx.strokeStyle = "#33266b"; ctx.beginPath(); ctx.moveTo(pad, H - pad); ctx.lineTo(W - pad, H - pad); ctx.stroke();
+    ctx.strokeStyle = "#b794ff"; ctx.beginPath(); var first = true;
     fr.forEach(function (f) { if (f.flux !== f.flux) { return; } var x = X(f.t), y = Y(f.flux); if (first) { ctx.moveTo(x, y); first = false; } else { ctx.lineTo(x, y); } });
     ctx.stroke();
-    fr.forEach(function (f, i) { if (f.flux !== f.flux) { return; } ctx.fillStyle = i === S.i ? "#ffcc66" : "#6ea8ff"; ctx.beginPath(); ctx.arc(X(f.t), Y(f.flux), i === S.i ? 4.5 : 2.5, 0, 6.3); ctx.fill(); });
+    fr.forEach(function (f, i) { if (f.flux !== f.flux) { return; } ctx.fillStyle = i === S.i ? "#ffd479" : "#ff7ad9"; ctx.beginPath(); ctx.arc(X(f.t), Y(f.flux), i === S.i ? 4.5 : 2.5, 0, 6.3); ctx.fill(); });
     ctx.fillStyle = "#93a0b8"; ctx.font = "11px system-ui"; ctx.fillText(fmtDate(t0), pad, 11); ctx.textAlign = "right"; ctx.fillText(fmtDate(t1), W - pad, 11); ctx.textAlign = "left";
     $("curveNote").textContent = "Brightness at the center of the picture over time (arbitrary units; background subtracted). Different exposures sample different colors within the detector, so small ups and downs are normal.";
   }
