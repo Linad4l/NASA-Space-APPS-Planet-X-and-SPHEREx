@@ -16,9 +16,9 @@
     var(--bg); background-attachment:fixed; color:var(--ink); font:16px/1.5 ui-rounded,"Arial Rounded MT Bold","Nunito","Segoe UI",system-ui,sans-serif; }
   header, main, footer, .how { max-width: 1040px; margin: 0 auto; padding-left: 16px; padding-right: 16px; }
   header { padding-top: 24px; padding-bottom: 8px; }
-  h1 { margin:0 0 6px; font-size:2.4rem; font-weight:900; letter-spacing:1.5px; color:#ff3aa8; -webkit-text-stroke:5px #000; paint-order:stroke fill; text-shadow:0 5px 0 #7dff3a; stroke-linejoin:round; }
-  .spark { color:#7dff3a; -webkit-text-stroke:0; text-shadow:none; }
-  .tag { display:inline-block; background:var(--purple); color:#fff; border:2px solid #000; border-radius:999px; padding:2px 12px; font-size:.8rem; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; margin:8px 0 10px; box-shadow:3px 3px 0 #000; }
+  h1 { display:table; margin:0 0 6px; padding-bottom:6px; border-bottom:4px solid #7dff3a; font-size:2.4rem; font-weight:900; letter-spacing:1.5px; color:#ff3aa8; text-shadow:-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0 -2px 0 #000, 0 2px 0 #000, -2px 0 0 #000, 2px 0 0 #000, 0 3px 0 #000; }
+  .spark { color:#7dff3a; text-shadow:-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000; }
+  .tag { display:table; background:var(--purple); color:#fff; border:2px solid #000; border-radius:999px; padding:2px 12px; font-size:.8rem; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; margin:8px 0 10px; box-shadow:3px 3px 0 #000; }
   header p { margin:0; color:var(--muted); }
   main { display:grid; gap:16px; grid-template-columns:minmax(0,1fr) 340px; padding-top:12px; padding-bottom:24px; }
   @media (max-width: 800px) { main { grid-template-columns: 1fr; } }
