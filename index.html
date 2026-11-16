@@ -49,6 +49,13 @@
   .how .card h2 { margin:0 0 8px; font-size:1.1rem; }
   .how .card p { margin:0 0 8px; color:var(--muted); }
   .how { margin-bottom:24px; }
+  .how ol, .how ul { margin:0 0 12px; padding-left:22px; color:var(--muted); }
+  .how li { margin-bottom:6px; }
+  .how code { background:#1d2840; padding:1px 5px; border-radius:4px; color:var(--ink); }
+  .how b { color:var(--ink); }
+  .caption { text-align:center; margin-top:2px; }
+  .caption .big { font-size:1.2rem; font-weight:600; }
+  .caption .sub { color:var(--muted); font-size:.9rem; }
   footer { padding-top:8px; padding-bottom:32px; color:var(--muted); font-size:.85rem; }
   footer p { margin:0 0 8px; }
   a { color:var(--accent); }
@@ -60,7 +67,7 @@
 
 <header>
   <h1>SPHEREx Blink</h1>
-  <p>Type a patch of sky and flip through SPHEREx infrared images of it, taken months apart. Anything that moves or changes brightness stands out.</p>
+  <p>Enter the coordinates of a patch of sky to see it in infrared light from NASA's SPHEREx space telescope. Flip through images taken months apart, like a short video, to spot objects that move or change brightness.</p>
 </header>
 
 <main>
@@ -74,6 +81,7 @@
         </g>
       </svg>
     </div>
+    <div class="caption" id="caption" aria-live="polite"></div>
     <div class="label" id="label" aria-live="polite">Enter coordinates on the right and press "Make flipbook".</div>
     <div class="muted" id="meta" style="text-align:center;min-height:1.3em"></div>
     <div class="controls">
@@ -120,6 +128,8 @@
         </select></div>
       <div><label for="maxn">Max exposures</label>
         <select id="maxn"><option>12</option><option selected>24</option><option>48</option><option>96</option></select></div>
+      <div><label for="skipempty">Skip partly-empty exposures</label>
+        <select id="skipempty"><option value="1" selected>Yes (recommended)</option><option value="0">No, show all</option></select></div>
     </div>
     <details>
       <summary>Moving target? Proper motion (optional)</summary>
@@ -159,12 +169,30 @@
 
 <div class="how">
   <div class="card">
-    <h2>How to use this</h2>
-    <p>Type a Right Ascension and Declination (decimal degrees, or hours/degrees like 08h55m10.8s and -7d14m42.5s), or an object name, then press Make flipbook. Examples are one click away. The tool asks NASA's archive (IRSA) for every SPHEREx exposure covering that spot, cuts out a small square from each, lines them up on the sky, subtracts the background and plays them like a short video.</p>
-    <p>Stars that stay put stay put. A nearby star, brown dwarf, comet or asteroid shifts between frames. A variable star changes brightness, shown in the small chart under the picture. "One stacked image per epoch" adds up the exposures from each visit for a cleaner picture. "Epoch minus first epoch" shows only what changed since the first visit: bright and dark spots mean something moved or varied.</p>
-    <p>Share a view by copying the link. You can also build one yourself: add <code>?ra=269.452&amp;dec=4.693&amp;fov=0.1&amp;det=SPHEREx-D6&amp;mode=single</code> to the page address.</p>
-    <p>"Epoch minus previous epoch" is handy for fast movers: it shows what changed between each visit and the one before. A bigger field of view (type any size from 0.02 to 0.6 degrees) can catch faster movers but takes longer to download. Dark blue pixels mean the exposure has no data there. Under each exposure you see how much of the field has no data and how many pixels carry a quality flag (flags are shown, not removed; see the SPHEREx documentation for what each flag bit means).</p>
-    <p>Limits: the NASA archive is sometimes slow or busy, so a request can take a minute or fail, and it may need another try. Each SPHEREx exposure covers only one band per detector, so frames from one detector differ slightly in color. Not built yet: Gaia and WISE overlays and on-the-fly spectra. New SPHEREx data shows up on its own, because the tool asks the archive directly each time.</p>
+    <h2>How to use SPHEREx Blink</h2>
+    <ol>
+      <li><b>Pick a spot in the sky.</b> Press one of the example buttons (Barnard's Star, WISE 0855, Epsilon Indi, RW Aurigae, R Draconis), or type a Right Ascension (RA) and Declination (Dec). Degrees like <code>133.795</code> work, and so do <code>08h55m10.8s</code> and <code>-7d14m42.5s</code>. You can also type an object's name and press Look up.</li>
+      <li><b>Choose how much sky and which color.</b> Field of view sets the size of the patch (bigger shows more sky but takes longer to download). Detector D1 to D6 picks the infrared wavelength range.</li>
+      <li><b>Choose what to show.</b> "Every exposure" shows each image. "One stacked image per epoch" adds up the images from each visit for a cleaner picture. "Epoch minus first epoch" and "Epoch minus previous epoch" show only what changed, so movers and variable stars pop out.</li>
+      <li><b>Press Make flipbook.</b> The tool collects the SPHEREx images of that patch from NASA's archive. This usually takes one to two minutes, and a progress bar shows how it is going.</li>
+      <li><b>Watch and explore.</b> Press Play, or use Back, Next and the slider (the arrow keys and space bar work too). Stars stay still, while moving objects shift between frames. Brightness, contrast and invert help you see faint things.</li>
+      <li><b>Share it.</b> "Copy link to this view" saves your coordinates and settings in a link that anyone can open.</li>
+    </ol>
+    <h2>What you are looking at</h2>
+    <ul>
+      <li><b>Crosshair:</b> the center of your patch. For moving targets it follows where the object should be.</li>
+      <li><b>Chart under the picture:</b> brightness at the center over time. A real trend over months can mean a variable star.</li>
+      <li><b>Dark blue pixels:</b> the exposure has no data there (each SPHEREx exposure covers a limited area; by default we skip exposures that are mostly empty). The core of a very bright star is also missing, because the detector saturates.</li>
+      <li><b>Flagged pixels:</b> the share of pixels that carry a quality flag from SPHEREx. It is a hint to look closer, not a verdict. See the SPHEREx documentation for what each flag means.</li>
+      <li><b>Aladin link:</b> opens the same position in the Aladin Lite sky viewer.</li>
+    </ul>
+    <h2>Good to know</h2>
+    <ul>
+      <li>NASA's archive is sometimes slow or busy. If you see an error, wait a minute and try again. The "Saved examples" menu always works, even when the archive does not.</li>
+      <li>Frames can be off by a few pixels near the edge of an exposure, so small shifts are not proof that something moved.</li>
+      <li>Not built yet: Gaia and WISE overlays and on-the-fly spectra. New SPHEREx data shows up on its own, because the tool asks the archive directly each time.</li>
+      <li>Embedding: add <code>&amp;embed=1</code> to a link to hide the header and this guide.</li>
+    </ul>
   </div>
 </div>
 
@@ -192,7 +220,7 @@
   ];
 
   var $ = function (id) { return document.getElementById(id); };
-  var S = { frames: [], i: 0, timer: null, playing: false, token: 0, cache: {}, curve: [], dates: [] };
+  var S = { named: null, frames: [], i: 0, timer: null, playing: false, token: 0, cache: {}, curve: [], dates: [] };
 
   // ====== helpers ======
   function proxyBase() { return ($("proxy").value || DEFAULT_PROXY || "").trim(); }
@@ -260,7 +288,7 @@
     if (!nm) { status("Type an object name first.", "warn"); return; }
     var KNOWN = {"barnard's star":0,"barnards star":0,"wise 0855":1,"wise0855":1,"epsilon indi":2,"eps indi":2,"eps ind":2,"rw aur":3,"rw aurigae":3,"r dra":4,"r draconis":4};
     var hit = KNOWN[nm.toLowerCase()];
-    if (hit !== undefined) { var ex = EXAMPLES[hit]; $("ra").value = ex.ra; $("dec").value = ex.dec; $("pmra").value = ex.pmra; $("pmdec").value = ex.pmdec; $("epoch").value = ex.epoch; status("Found " + nm + " in the built-in list. Press Make flipbook."); return; }
+    if (hit !== undefined) { var ex = EXAMPLES[hit]; $("ra").value = ex.ra; $("dec").value = ex.dec; S.named = { name: ex.label, ra: String(ex.ra), dec: String(ex.dec) }; $("pmra").value = ex.pmra; $("pmdec").value = ex.pmdec; $("epoch").value = ex.epoch; status("Found " + nm + " in the built-in list. Press Make flipbook."); return; }
     status("Looking up " + nm + "...");
     try {
       var url = "https://cds.unistra.fr/cgi-bin/nph-sesame/-oI/SNV?" + encodeURIComponent(nm);
@@ -269,6 +297,7 @@
       if (!m) { throw new Error("name not found"); }
       $("ra").value = Number(m[1]).toFixed(6);
       $("dec").value = Number(m[2]).toFixed(6);
+      S.named = { name: nm, ra: $("ra").value, dec: $("dec").value };
       var p = txt.match(/%P\s+([+-]?[\d.]+)\s+([+-]?[\d.]+)/);
       if (p) { $("pmra").value = (Number(p[1]) / 1000).toFixed(4); $("pmdec").value = (Number(p[2]) / 1000).toFixed(4); $("epoch").value = 2000; }
       else { $("pmra").value = 0; $("pmdec").value = 0; }
@@ -458,6 +487,7 @@
       ra = wrapRA(parseAngle($("ra").value, true)); dec = parseAngle($("dec").value, false);
       if (!(dec >= -90 && dec <= 90)) { throw new Error("Dec must be between -90 and 90 degrees."); }
     } catch (e) { status(e.message, "err"); return; }
+    setCaption("building");
     var pmra = Number($("pmra").value) || 0, pmdec = Number($("pmdec").value) || 0, epoch = Number($("epoch").value) || 2000;
     $("go").disabled = true; $("go").textContent = "Working..."; $("cancel").style.display = ""; $("prog").style.display = "";
     $("prog").value = 0; $("prog").max = 1;
@@ -496,8 +526,13 @@
       if (token !== S.token) { return; }
       var good = [];
       rows.forEach(function (r, i) { if (results[i]) { good.push({ row: r, img: results[i].img, nodata: results[i].nodata, flagged: results[i].flagged }); } });
+      var skippedEmpty = 0;
+      if ($("skipempty").value === "1" && good.length) {
+        var full = good.filter(function (g) { return g.nodata <= 10; });
+        if (full.length >= 2) { skippedEmpty = good.length - full.length; good = full; }
+      }
       if (!good.length) { throw new Error("The archive found images but none of the cutouts could be downloaded (" + failed + " failed). The archive may be busy. Please try again shortly."); }
-      status("Building the flipbook...");
+      status("Building the flipbook..." + (skippedEmpty ? " (skipped " + skippedEmpty + " exposures that had your target near an edge)" : ""));
       await sleep(20);
       var frames = buildFrames(good, mode, N);
       if (!frames.length) { throw new Error("Need images from at least two different visits for that mode. Try \"Every exposure\"."); }
@@ -505,17 +540,40 @@
       showFrames(frames, N);
       var spanA = fmtDate(good[0].row.t), spanB = fmtDate(good[good.length - 1].row.t);
       fillDetails({ ra: ra, dec: dec, cra: c[0], cdec: c[1], fov: fov, det: det, found: total, used: good.length, failed: failed, from: spanA, to: spanB, mode: mode, partial: found.partial });
-      var msg = "Done: " + frames.length + " frames from " + good.length + " exposures.";
+      var msg = "Done: " + frames.length + " frames from " + good.length + " exposures" + (skippedEmpty ? " (" + skippedEmpty + " mostly-empty exposures skipped)" : "") + ".";
       if (failed) { msg += " " + failed + " could not be downloaded."; }
       if (found.partial.length) { msg += " Part of the archive did not answer (" + found.partial.join("; ") + ")."; }
       status(msg, failed || found.partial.length ? "warn" : "");
+      setCaption("done");
     } catch (e) {
-      if (e.message !== "cancelled") { status(e.message, "err"); }
+      if (e.message !== "cancelled") { status(e.message, "err"); setCaption("failed"); }
     } finally {
       if (token === S.token) { resetRunUI(); }
     }
   }
 
+  var DETNAME = { "SPHEREx-D1": "D1 (0.75-1.1 \u00b5m)", "SPHEREx-D2": "D2 (1.1-1.6 \u00b5m)", "SPHEREx-D3": "D3 (1.6-2.4 \u00b5m)",
+    "SPHEREx-D4": "D4 (2.4-3.8 \u00b5m)", "SPHEREx-D5": "D5 (3.8-4.4 \u00b5m)", "SPHEREx-D6": "D6 (4.4-5.0 \u00b5m)" };
+  var MODENAME = { single: "every exposure", epoch: "one stacked image per epoch", diff: "each epoch minus the first epoch", diffprev: "each epoch minus the previous epoch" };
+  function currentObjectName() {
+    var n = S.named;
+    if (n && n.ra === $("ra").value.trim() && n.dec === $("dec").value.trim()) { return n.name; }
+    return null;
+  }
+  function writeCaption(big, sub) {
+    var c = $("caption"); c.innerHTML = "";
+    var b = document.createElement("div"); b.className = "big"; b.textContent = big; c.appendChild(b);
+    if (sub) { var d = document.createElement("div"); d.className = "sub"; d.textContent = sub; c.appendChild(d); }
+  }
+  function setCaption(state) {
+    var ra, dec;
+    try { ra = wrapRA(parseAngle($("ra").value, true)); dec = parseAngle($("dec").value, false); } catch (e) { return; }
+    var nm = currentObjectName() || "your coordinates";
+    var big = state === "building" ? "Building flipbook for " + nm + "..." : state === "failed" ? "Could not build a flipbook for " + nm : "Flipbook of " + nm;
+    var sub = "RA " + ra.toFixed(4) + "\u00b0   Dec " + dec.toFixed(4) + "\u00b0   |   " + (DETNAME[$("det").value] || $("det").value) +
+      "   |   " + effectiveFov() + "\u00b0 field   |   showing " + (MODENAME[$("mode").value] || $("mode").value);
+    writeCaption(big, sub);
+  }
   function effectiveFov() {
     var c = Number($("fovc").value);
     if (c > 0) { return Math.min(0.6, Math.max(0.02, c)); }
@@ -640,7 +698,7 @@
     try {
       var p = new URLSearchParams();
       p.set("ra", $("ra").value.trim()); p.set("dec", $("dec").value.trim()); p.set("fov", String(effectiveFov()));
-      p.set("det", $("det").value); p.set("mode", $("mode").value); p.set("speed", $("speed").value);
+      p.set("det", $("det").value); var on = currentObjectName(); if (on) { p.set("name", on); } p.set("mode", $("mode").value); p.set("speed", $("speed").value);
       if (Number($("pmra").value) || Number($("pmdec").value)) { p.set("pmra", $("pmra").value); p.set("pmdec", $("pmdec").value); p.set("epoch", $("epoch").value); }
       history.replaceState(null, "", "?" + p.toString());
     } catch (e) { /* ignore */ }
@@ -651,12 +709,14 @@
       if (p.get(k[0]) != null) { $(k[1]).value = p.get(k[0]); }
     });
     if (p.get("fov") != null && $("fov").value !== p.get("fov")) { $("fovc").value = p.get("fov"); }
+    if (p.get("name") && p.get("ra") != null && p.get("dec") != null) { S.named = { name: p.get("name"), ra: p.get("ra").trim(), dec: p.get("dec").trim() }; $("name").value = p.get("name"); }
     if (p.get("embed") === "1") { document.body.classList.add("embed"); }
     if (p.get("proxy")) { $("proxy").value = p.get("proxy"); try { localStorage.setItem("spx_proxy", p.get("proxy")); } catch (e) {} }
     return p.get("ra") != null && p.get("dec") != null;
   }
   function loadExample(ex) {
     $("name").value = ex.name || ex.label; $("ra").value = ex.ra; $("dec").value = ex.dec;
+    S.named = { name: ex.label, ra: String(ex.ra), dec: String(ex.dec) };
     $("pmra").value = ex.pmra; $("pmdec").value = ex.pmdec; $("epoch").value = ex.epoch;
     $("fov").value = ex.fov; $("fovc").value = ""; $("det").value = ex.det; $("mode").value = ex.mode;
     run();
@@ -682,6 +742,7 @@
       S.frames = out; S.i = 0; $("view").width = N; $("view").height = frames[0].naturalHeight;
       $("scrub").max = out.length - 1; applyFilter(); show(0); startPlay();
       status("Showing saved example: " + m.title + ".");
+      writeCaption("Saved example: " + m.title, "RA " + Number(m.ra).toFixed(4) + "\u00b0   Dec " + Number(m.dec).toFixed(4) + "\u00b0   |   " + (m.detector || "") + "   |   pre-made frames");
     } catch (e) { status("Could not load the saved example: " + e.message, "err"); }
   }
 
