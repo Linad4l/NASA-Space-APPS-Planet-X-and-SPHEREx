@@ -52,6 +52,7 @@
   footer { padding-top:8px; padding-bottom:32px; color:var(--muted); font-size:.85rem; }
   footer p { margin:0 0 8px; }
   a { color:var(--accent); }
+  .embed header, .embed .how { display:none; }
   hr { border:0; border-top:1px solid var(--line); width:100%; margin:0; }
 </style>
 </head>
@@ -74,6 +75,7 @@
       </svg>
     </div>
     <div class="label" id="label" aria-live="polite">Enter coordinates on the right and press "Make flipbook".</div>
+    <div class="muted" id="meta" style="text-align:center;min-height:1.3em"></div>
     <div class="controls">
       <button id="prev" type="button">&#9664; Back</button>
       <button id="play" type="button">Play</button>
@@ -100,6 +102,7 @@
     <div class="two">
       <div><label for="fov">Field of view</label>
         <select id="fov"><option value="0.05">0.05&deg; (3&prime;)</option><option value="0.1" selected>0.1&deg; (6&prime;)</option><option value="0.2">0.2&deg; (12&prime;)</option><option value="0.4">0.4&deg; (24&prime;, slower)</option></select></div>
+      <div><label for="fovc">Or custom FOV (deg)</label><input id="fovc" type="number" step="0.01" min="0.02" max="0.6" placeholder="0.02 to 0.6"></div>
       <div><label for="det">Detector (wavelength)</label>
         <select id="det">
           <option value="SPHEREx-D1">D1 0.75&ndash;1.1 &micro;m</option><option value="SPHEREx-D2">D2 1.1&ndash;1.6 &micro;m</option>
@@ -113,6 +116,7 @@
           <option value="single">Every exposure</option>
           <option value="epoch">One stacked image per epoch</option>
           <option value="diff">Epoch minus first epoch</option>
+          <option value="diffprev">Epoch minus previous epoch</option>
         </select></div>
       <div><label for="maxn">Max exposures</label>
         <select id="maxn"><option>12</option><option selected>24</option><option>48</option><option>96</option></select></div>
@@ -138,6 +142,7 @@
     <label class="check"><input type="checkbox" id="showx" checked> Show center marks</label>
     <button id="copy" type="button">Copy link to this view</button>
     <dl id="details"></dl>
+    <a id="aladin" href="https://aladin.cds.unistra.fr/AladinLite/" target="_blank" rel="noopener" style="font-size:.9rem">Open this sky position in Aladin Lite (CDS)</a>
     <details>
       <summary>Saved examples and connection</summary>
       <div style="margin-top:8px">
@@ -158,7 +163,8 @@
     <p>Type a Right Ascension and Declination (decimal degrees, or hours/degrees like 08h55m10.8s and -7d14m42.5s), or an object name, then press Make flipbook. Examples are one click away. The tool asks NASA's archive (IRSA) for every SPHEREx exposure covering that spot, cuts out a small square from each, lines them up on the sky, subtracts the background and plays them like a short video.</p>
     <p>Stars that stay put stay put. A nearby star, brown dwarf, comet or asteroid shifts between frames. A variable star changes brightness, shown in the small chart under the picture. "One stacked image per epoch" adds up the exposures from each visit for a cleaner picture. "Epoch minus first epoch" shows only what changed since the first visit: bright and dark spots mean something moved or varied.</p>
     <p>Share a view by copying the link. You can also build one yourself: add <code>?ra=269.452&amp;dec=4.693&amp;fov=0.1&amp;det=SPHEREx-D6&amp;mode=single</code> to the page address.</p>
-    <p>Limits: the NASA archive is sometimes slow or busy, so a request can take a minute or fail, and it may need another try. Pixel flags are not applied yet. Each SPHEREx exposure covers only one band per detector, so frames from one detector differ slightly in color.</p>
+    <p>"Epoch minus previous epoch" is handy for fast movers: it shows what changed between each visit and the one before. A bigger field of view (type any size from 0.02 to 0.6 degrees) can catch faster movers but takes longer to download. Dark blue pixels mean the exposure has no data there. Under each exposure you see how much of the field has no data and how many pixels carry a quality flag (flags are shown, not removed; see the SPHEREx documentation for what each flag bit means).</p>
+    <p>Limits: the NASA archive is sometimes slow or busy, so a request can take a minute or fail, and it may need another try. Each SPHEREx exposure covers only one band per detector, so frames from one detector differ slightly in color. Not built yet: Gaia and WISE overlays and on-the-fly spectra. New SPHEREx data shows up on its own, because the tool asks the archive directly each time.</p>
   </div>
 </div>
 
@@ -180,9 +186,9 @@
     { id: "barnard", label: "Barnard's Star", ra: 269.452077, dec: 4.693365, pmra: -0.801551, pmdec: 10.362394, epoch: 2000, fov: 0.1, det: "SPHEREx-D6", mode: "single" },
     { id: "wise0855", label: "WISE 0855", ra: 133.7951321, dec: -7.2451472, pmra: -8.119, pmdec: 0.679, epoch: 2014, fov: 0.1, det: "SPHEREx-D6", mode: "single" },
     // Epsilon Indi B sits several arcminutes from the bright star, so use a wide field centered on the star.
-    { id: "epsindi", label: "Epsilon Indi (A + B)", name: "eps Indi", ra: 330.8402, dec: -56.7860, pmra: 3.966, pmdec: -2.536, epoch: 2000, fov: 0.4, det: "SPHEREx-D6", mode: "single" },
-    { id: "rwaur", label: "RW Aurigae", name: "RW Aur", ra: 76.9565, dec: 30.4014, pmra: 0, pmdec: 0, epoch: 2000, fov: 0.1, det: "SPHEREx-D2", mode: "single" },
-    { id: "rdra", label: "R Draconis", name: "R Dra", ra: 248.1670, dec: 66.7550, pmra: 0, pmdec: 0, epoch: 2000, fov: 0.1, det: "SPHEREx-D2", mode: "single" }
+    { id: "epsindi", label: "Epsilon Indi (A + B)", name: "eps Indi", ra: 330.84022, dec: -56.78598, pmra: 3.96666, pmdec: -2.53619, epoch: 2000, fov: 0.4, det: "SPHEREx-D6", mode: "single" },
+    { id: "rwaur", label: "RW Aurigae", name: "RW Aur", ra: 76.95652, dec: 30.40144, pmra: 0.00723, pmdec: -0.02033, epoch: 2000, fov: 0.1, det: "SPHEREx-D2", mode: "single" },
+    { id: "rdra", label: "R Draconis", name: "R Dra", ra: 248.16761, dec: 66.75498, pmra: -0.020643, pmdec: 0.006149, epoch: 2000, fov: 0.1, det: "SPHEREx-D2", mode: "single" }
   ];
 
   var $ = function (id) { return document.getElementById(id); };
@@ -247,7 +253,10 @@
   async function resolveName() {
     var nm = $("name").value.trim();
     if (!nm) { status("Type an object name first.", "warn"); return; }
-    var KNOWN = {"barnard's star":0,"barnards star":0,"wise 0855":1,"wise0855":1,"epsilon indi":2,"eps indi":2,"rw aur":3,"rw aurigae":3,"r dra":4,"r draconis":4}; var hit = KNOWN[nm.toLowerCase()]; if (hit !== undefined) { var ex = EXAMPLES[hit]; $("ra").value = ex.ra; $("dec").value = ex.dec; $("pmra").value = ex.pmra; $("pmdec").value = ex.pmdec; $("epoch").value = ex.epoch; status("Found " + nm + " in the built-in list. Press Make flipbook."); return; } status("Looking up " + nm + "...");
+    var KNOWN = {"barnard's star":0,"barnards star":0,"wise 0855":1,"wise0855":1,"epsilon indi":2,"eps indi":2,"eps ind":2,"rw aur":3,"rw aurigae":3,"r dra":4,"r draconis":4};
+    var hit = KNOWN[nm.toLowerCase()];
+    if (hit !== undefined) { var ex = EXAMPLES[hit]; $("ra").value = ex.ra; $("dec").value = ex.dec; $("pmra").value = ex.pmra; $("pmdec").value = ex.pmdec; $("epoch").value = ex.epoch; status("Found " + nm + " in the built-in list. Press Make flipbook."); return; }
+    status("Looking up " + nm + "...");
     try {
       var url = "https://cds.unistra.fr/cgi-bin/nph-sesame/-oI/SNV?" + encodeURIComponent(nm);
       var txt = await (await fetchRetry(url, "name lookup", 15000, 2, S.token)).text();
@@ -282,9 +291,9 @@
     var all = [], errs = [];
     for (var c = 0; c < COLLECTIONS.length; c++) {
       var url = "https://irsa.ipac.caltech.edu/SIA?COLLECTION=" + COLLECTIONS[c] +
-        "&POS=circle+" + ra.toFixed(6) + "+" + dec.toFixed(6) + "+0.02&MAXREC=2000";
+        "&POS=circle+" + ra.toFixed(6) + "+" + dec.toFixed(6) + "+0.02";
       try {
-        var txt = await (await fetchRetry(url, "archive search", 45000, 4, token)).text();
+        var txt = await (await fetchRetry(url, "archive search", 45000, 6, token)).text();
         all = all.concat(parseVOTable(txt));
       } catch (e) { if (e.message === "cancelled") { throw e; } errs.push(COLLECTIONS[c] + ": " + e.message); }
     }
@@ -350,12 +359,25 @@
       cd = [[d1 * pc[0][0], d1 * pc[0][1]], [d2 * pc[1][0], d2 * pc[1][1]]];
     }
     cd = [[cd[0][0] || 0, cd[0][1] || 0], [cd[1][0] || 0, cd[1][1] || 0]];
-    return { w: w, h: h2, data: data, crval: [img.CRVAL1, img.CRVAL2], crpix: [img.CRPIX1, img.CRPIX2], cd: cd };
+    // Optional pixel-flag layer (same size as the image). Meaning of each bit: see the SPHEREx data documentation.
+    var flags = null;
+    hdus.forEach(function (fh) {
+      if (flags || String(fh.EXTNAME || "").toUpperCase() !== "FLAGS" || fh.NAXIS1 !== w || fh.NAXIS2 !== h2) { return; }
+      var fv = new DataView(buf, fh._off, fh._bytes), bp = fh.BITPIX;
+      if (bp !== 32 && bp !== 16 && bp !== 8) { return; }
+      flags = new Uint8Array(w * h2);
+      for (var q = 0; q < w * h2; q++) {
+        var fval = bp === 32 ? fv.getInt32(q * 4, false) : bp === 16 ? fv.getInt16(q * 2, false) : fv.getUint8(q);
+        flags[q] = fval !== 0 ? 1 : 0;
+      }
+    });
+    return { w: w, h: h2, data: data, flags: flags, crval: [img.CRVAL1, img.CRVAL2], crpix: [img.CRPIX1, img.CRPIX2], cd: cd };
   }
 
   // Resample a cutout onto a common north-up grid centered at (ra0, dec0).
   function resample(f, ra0, dec0, N) {
     var D = Math.PI / 180, out = new Float32Array(N * N), sc = PIXEL_SCALE / 3600;
+    var fl = f.flags ? new Uint8Array(N * N) : null;
     var a0 = f.crval[0] * D, d0 = f.crval[1] * D;
     var det = f.cd[0][0] * f.cd[1][1] - f.cd[0][1] * f.cd[1][0];
     var inv = [[f.cd[1][1] / det, -f.cd[0][1] / det], [-f.cd[1][0] / det, f.cd[0][0] / det]];
@@ -380,9 +402,10 @@
         if (ix < 0 || iy < 0 || ix + 1 >= f.w || iy + 1 >= f.h) { out[y * N + x] = NaN; continue; }
         var v00 = f.data[iy * f.w + ix], v10 = f.data[iy * f.w + ix + 1], v01 = f.data[(iy + 1) * f.w + ix], v11 = f.data[(iy + 1) * f.w + ix + 1];
         out[y * N + x] = (v00 * (1 - tx) + v10 * tx) * (1 - ty) + (v01 * (1 - tx) + v11 * tx) * ty;
+        if (fl) { var nx = Math.round(px), ny = Math.round(py); fl[y * N + x] = f.flags[ny * f.w + nx]; }
       }
     }
-    return out;
+    return { img: out, flags: fl };
   }
   function nanmedian(a) {
     var v = [];
@@ -425,7 +448,7 @@
   async function run(opts) {
     var token = ++S.token;
     stopPlay();
-    var ra, dec, fov = Number($("fov").value), det = $("det").value, mode = $("mode").value, maxn = Number($("maxn").value);
+    var ra, dec, fov = effectiveFov(), det = $("det").value, mode = $("mode").value, maxn = Number($("maxn").value);
     try {
       ra = wrapRA(parseAngle($("ra").value, true)); dec = parseAngle($("dec").value, false);
       if (!(dec >= -90 && dec <= 90)) { throw new Error("Dec must be between -90 and 90 degrees."); }
@@ -456,7 +479,9 @@
           if (token !== S.token) { return; }
           try {
             var f = await getCutout(rows[idx], c[0], c[1], fov, token);
-            results[idx] = subMedian(resample(f, c[0], c[1], N));
+            var rs = resample(f, c[0], c[1], N), nd = 0, fg = 0;
+            for (var pi = 0; pi < rs.img.length; pi++) { if (rs.img[pi] !== rs.img[pi]) { nd++; } else if (rs.flags && rs.flags[pi]) { fg++; } }
+            results[idx] = { img: subMedian(rs.img), nodata: 100 * nd / rs.img.length, flagged: rs.flags ? 100 * fg / Math.max(1, rs.img.length - nd) : null };
           } catch (e) { if (e.message === "cancelled") { return; } failed++; }
           done++; $("prog").value = done;
           status("Downloading image cutouts: " + done + " of " + rows.length + (failed ? " (" + failed + " failed)" : "") + "...");
@@ -465,7 +490,7 @@
       await Promise.all([worker(), worker(), worker(), worker()]);
       if (token !== S.token) { return; }
       var good = [];
-      rows.forEach(function (r, i) { if (results[i]) { good.push({ row: r, img: results[i] }); } });
+      rows.forEach(function (r, i) { if (results[i]) { good.push({ row: r, img: results[i].img, nodata: results[i].nodata, flagged: results[i].flagged }); } });
       if (!good.length) { throw new Error("The archive found images but none of the cutouts could be downloaded (" + failed + " failed). The archive may be busy. Please try again shortly."); }
       status("Building the flipbook...");
       await sleep(20);
@@ -486,6 +511,11 @@
     }
   }
 
+  function effectiveFov() {
+    var c = Number($("fovc").value);
+    if (c > 0) { return Math.min(0.6, Math.max(0.02, c)); }
+    return Number($("fov").value) || 0.1;
+  }
   function groupEpochs(good) {
     var groups = [], cur = [];
     good.forEach(function (g, i) {
@@ -497,7 +527,11 @@
   }
   function buildFrames(good, mode, N) {
     if (mode === "single") {
-      return good.map(function (g, i) { return { img: g.img, label: fmtDate(g.row.t) + "   exposure " + (i + 1) + " of " + good.length, t: g.row.t, obs: g.row.obs_id }; });
+      return good.map(function (g, i) {
+        var meta = "Exposure " + g.row.obs_id + "  |  no data: " + g.nodata.toFixed(0) + "% of field" +
+          (g.flagged == null ? "" : "  |  flagged pixels: " + g.flagged.toFixed(0) + "% of valid pixels");
+        return { img: g.img, label: fmtDate(g.row.t) + "   exposure " + (i + 1) + " of " + good.length, t: g.row.t, obs: g.row.obs_id, meta: meta };
+      });
     }
     var groups = groupEpochs(good), stacks = groups.map(function (gr) {
       var t0 = gr[0].row.t, t1 = gr[gr.length - 1].row.t;
@@ -506,11 +540,12 @@
     });
     if (mode === "epoch") { return stacks; }
     if (stacks.length < 2) { return []; }
-    var base = stacks[0].img;
-    return stacks.slice(1).map(function (s) {
+    var prevMode = mode === "diffprev";
+    return stacks.slice(1).map(function (s, k) {
+      var base = prevMode ? stacks[k].img : stacks[0].img;
       var d = new Float32Array(N * N);
       for (var i = 0; i < d.length; i++) { d[i] = s.img[i] - base[i]; }
-      return { img: d, t: s.t, diff: true, label: s.label + "  minus first epoch", obs: s.obs };
+      return { img: d, t: s.t, diff: true, label: s.label + (prevMode ? "  minus previous epoch" : "  minus first epoch"), obs: s.obs };
     });
   }
 
@@ -531,7 +566,7 @@
       var ctx = cv.getContext("2d"), id = ctx.createImageData(N, N);
       for (var i = 0; i < N * N; i++) {
         var v = f.img[i], g;
-        if (v !== v) { g = 0; }
+        if (v !== v) { id.data[i * 4] = 10; id.data[i * 4 + 1] = 24; id.data[i * 4 + 2] = 70; id.data[i * 4 + 3] = 255; continue; } // no data: dark blue
         else if (diff) { g = 255 * (0.5 + 0.5 * v / hi); }
         else { var t = Math.min(1, Math.max(0, (v - lo) / (hi - lo))); g = 255 * Math.asinh(K * t) / Math.asinh(K); }
         g = Math.max(0, Math.min(255, g));
@@ -554,6 +589,7 @@
     var f = S.frames[S.i], ctx = $("view").getContext("2d");
     ctx.drawImage(f.canvas, 0, 0);
     $("label").textContent = f.label + "   (frame " + (S.i + 1) + " of " + n + ")";
+    $("meta").textContent = f.meta || "";
     $("scrub").value = S.i;
     drawCurve();
   }
@@ -589,6 +625,7 @@
       ["Center used", m.cra.toFixed(5) + ", " + m.cdec.toFixed(5)], ["Field of view", m.fov + "°"], ["Detector", m.det],
       ["Exposures found", String(m.found)], ["Exposures used", m.used + (m.failed ? " (" + m.failed + " failed)" : "")],
       ["First", m.from], ["Last", m.to]];
+    $("aladin").href = "https://aladin.cds.unistra.fr/AladinLite/?target=" + encodeURIComponent(m.ra.toFixed(6) + " " + m.dec.toFixed(6)) + "&fov=" + (m.fov * 2).toFixed(3);
     var dl = $("details"); dl.innerHTML = "";
     rows.forEach(function (r) { var dt = document.createElement("dt"); dt.textContent = r[0]; var dd = document.createElement("dd"); dd.textContent = r[1]; dl.appendChild(dt); dl.appendChild(dd); });
   }
@@ -597,7 +634,7 @@
   function updateURL() {
     try {
       var p = new URLSearchParams();
-      p.set("ra", $("ra").value.trim()); p.set("dec", $("dec").value.trim()); p.set("fov", $("fov").value);
+      p.set("ra", $("ra").value.trim()); p.set("dec", $("dec").value.trim()); p.set("fov", String(effectiveFov()));
       p.set("det", $("det").value); p.set("mode", $("mode").value); p.set("speed", $("speed").value);
       if (Number($("pmra").value) || Number($("pmdec").value)) { p.set("pmra", $("pmra").value); p.set("pmdec", $("pmdec").value); p.set("epoch", $("epoch").value); }
       history.replaceState(null, "", "?" + p.toString());
@@ -608,13 +645,15 @@
     [["ra", "ra"], ["dec", "dec"], ["fov", "fov"], ["det", "det"], ["mode", "mode"], ["speed", "speed"], ["pmra", "pmra"], ["pmdec", "pmdec"], ["epoch", "epoch"], ["maxn", "maxn"]].forEach(function (k) {
       if (p.get(k[0]) != null) { $(k[1]).value = p.get(k[0]); }
     });
+    if (p.get("fov") != null && $("fov").value !== p.get("fov")) { $("fovc").value = p.get("fov"); }
+    if (p.get("embed") === "1") { document.body.classList.add("embed"); }
     if (p.get("proxy")) { $("proxy").value = p.get("proxy"); try { localStorage.setItem("spx_proxy", p.get("proxy")); } catch (e) {} }
     return p.get("ra") != null && p.get("dec") != null;
   }
   function loadExample(ex) {
     $("name").value = ex.name || ex.label; $("ra").value = ex.ra; $("dec").value = ex.dec;
     $("pmra").value = ex.pmra; $("pmdec").value = ex.pmdec; $("epoch").value = ex.epoch;
-    $("fov").value = ex.fov; $("det").value = ex.det; $("mode").value = ex.mode;
+    $("fov").value = ex.fov; $("fovc").value = ""; $("det").value = ex.det; $("mode").value = ex.mode;
     run();
   }
 
