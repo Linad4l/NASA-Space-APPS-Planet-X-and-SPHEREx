@@ -247,7 +247,7 @@
   async function resolveName() {
     var nm = $("name").value.trim();
     if (!nm) { status("Type an object name first.", "warn"); return; }
-    status("Looking up " + nm + "...");
+    var KNOWN = {"barnard's star":0,"barnards star":0,"wise 0855":1,"wise0855":1,"epsilon indi":2,"eps indi":2,"rw aur":3,"rw aurigae":3,"r dra":4,"r draconis":4}; var hit = KNOWN[nm.toLowerCase()]; if (hit !== undefined) { var ex = EXAMPLES[hit]; $("ra").value = ex.ra; $("dec").value = ex.dec; $("pmra").value = ex.pmra; $("pmdec").value = ex.pmdec; $("epoch").value = ex.epoch; status("Found " + nm + " in the built-in list. Press Make flipbook."); return; } status("Looking up " + nm + "...");
     try {
       var url = "https://cds.unistra.fr/cgi-bin/nph-sesame/-oI/SNV?" + encodeURIComponent(nm);
       var txt = await (await fetchRetry(url, "name lookup", 15000, 2, S.token)).text();
