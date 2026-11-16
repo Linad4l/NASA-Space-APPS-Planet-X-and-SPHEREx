@@ -80,7 +80,6 @@
           <line x1="36" y1="50" x2="45" y2="50"/><line x1="55" y1="50" x2="64" y2="50"/>
         </g>
       </svg>
-      <svg id="track" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" style="display:none"></svg>
     </div>
     <div class="caption" id="caption" aria-live="polite"></div>
     <div class="label" id="label" aria-live="polite">Enter coordinates on the right and press "Make flipbook".</div>
@@ -150,8 +149,7 @@
     <div class="row"><label for="bright">Brightness</label><input id="bright" type="range" min="0.5" max="2.5" step="0.1" value="1"></div>
     <div class="row"><label for="contrast">Contrast</label><input id="contrast" type="range" min="0.5" max="2.5" step="0.1" value="1"></div>
     <label class="check"><input type="checkbox" id="invert"> Invert (dark stars on light)</label>
-    <label class="check"><input type="checkbox" id="showx"> Show center marks</label>
-    <label class="check"><input type="checkbox" id="showtrack" checked> Mark where a moving object should be (needs proper motion)</label>
+    <label class="check"><input type="checkbox" id="showx" checked> Show center marks</label>
     <button id="copy" type="button">Copy link to this view</button>
     <dl id="details"></dl>
     <a id="aladin" href="https://aladin.cds.unistra.fr/AladinLite/" target="_blank" rel="noopener" style="font-size:.9rem">Open this sky position in Aladin Lite (CDS)</a>
@@ -182,8 +180,7 @@
     </ol>
     <h2>What you are looking at</h2>
     <ul>
-      <li><b>Sky stays fixed:</b> the picture does not follow any object. Stars stay in place and anything that moves drifts across the frame. Turn on "Show center marks" to see the exact center of the patch.</li>
-      <li><b>Yellow ring and dashed line:</b> for objects with a known motion (like WISE 0855 or Barnard's Star), the ring marks where the object should be in each frame and the dashed line shows its path. Look for a real dot moving with the ring.</li>
+      <li><b>Sky stays fixed:</b> the picture does not follow any object. Stars stay in place and anything that moves drifts across the frame. The blue marks show the center of your patch.</li>
       <li><b>Chart under the picture:</b> brightness at the center over time. A real trend over months can mean a variable star.</li>
       <li><b>Dark blue pixels:</b> the exposure has no data there (each SPHEREx exposure covers a limited area; by default we skip exposures that are mostly empty). The core of a very bright star is also missing, because the detector saturates.</li>
       <li><b>Flagged pixels:</b> the share of pixels that carry a quality flag from SPHEREx. It is a hint to look closer, not a verdict. See the SPHEREx documentation for what each flag means.</li>
@@ -215,7 +212,7 @@
   var PIXEL_SCALE = 6.15; // arcsec per pixel
   var EXAMPLES = [
     { id: "barnard", label: "Barnard's Star", ra: 269.452077, dec: 4.693365, pmra: -0.801551, pmdec: 10.362394, epoch: 2000, fov: 0.1, det: "SPHEREx-D6", mode: "single" },
-    { id: "wise0855", label: "WISE 0855", ra: 133.7951321, dec: -7.2451472, pmra: -8.119, pmdec: 0.679, epoch: 2014, fov: 0.05, det: "SPHEREx-D6", mode: "single" },
+    { id: "wise0855", label: "WISE 0855", ra: 133.7951321, dec: -7.2451472, pmra: -8.119, pmdec: 0.679, epoch: 2014, fov: 0.1, det: "SPHEREx-D6", mode: "single" },
     // Epsilon Indi B sits several arcminutes from the bright star, so use a wide field centered on the star.
     { id: "epsindi", label: "Epsilon Indi (A + B)", name: "eps Indi", ra: 330.84022, dec: -56.78598, pmra: 3.96666, pmdec: -2.53619, epoch: 2000, fov: 0.4, det: "SPHEREx-D6", mode: "single" },
     { id: "rwaur", label: "RW Aurigae", name: "RW Aur", ra: 76.95652, dec: 30.40144, pmra: 0.00723, pmdec: -0.02033, epoch: 2000, fov: 0.1, det: "SPHEREx-D2", mode: "single" },
@@ -540,7 +537,6 @@
       var frames = buildFrames(good, mode, N);
       if (!frames.length) { throw new Error("Need images from at least two different visits for that mode. Try \"Every exposure\"."); }
       S.dates = good.map(function (g) { return g.row.t; });
-      S.track = (pmra || pmdec) ? { pmra: pmra, pmdec: pmdec, yc: mjdToYear(meanT) } : null;
       showFrames(frames, N);
       var spanA = fmtDate(good[0].row.t), spanB = fmtDate(good[good.length - 1].row.t);
       fillDetails({ ra: ra, dec: dec, cra: c[0], cdec: c[1], fov: fov, det: det, found: total, used: good.length, failed: failed, from: spanA, to: spanB, mode: mode, partial: found.partial });
@@ -650,17 +646,6 @@
     show(0);
     if (frames.length > 1) { startPlay(); }
   }
-  function drawTrack(f) {
-    var svg = $("track"), T = S.track;
-    if (!T || !f || !$("showtrack").checked) { svg.style.display = "none"; return; }
-    var N = S.N, mid = (N - 1) / 2;
-    function P(t) { var y = mjdToYear(t) - T.yc; return [mid - T.pmra * y / PIXEL_SCALE, mid - T.pmdec * y / PIXEL_SCALE]; }
-    var pts = S.frames.map(function (g) { return P(g.t); }), cur = P(f.t), r = Math.max(1.6, N * 0.04), h = "";
-    var d = pts.map(function (p, k) { return (k ? "L" : "M") + (p[0] + 0.5).toFixed(2) + " " + (p[1] + 0.5).toFixed(2); }).join(" ");
-    h += '<path d="' + d + '" fill="none" stroke="#ffcc66" stroke-width="1.5" stroke-dasharray="5 4" opacity=".7" vector-effect="non-scaling-stroke"/>';
-    h += '<circle cx="' + (cur[0] + 0.5).toFixed(2) + '" cy="' + (cur[1] + 0.5).toFixed(2) + '" r="' + r.toFixed(2) + '" fill="none" stroke="#ffcc66" stroke-width="2.5" vector-effect="non-scaling-stroke"/>';
-    svg.setAttribute("viewBox", "0 0 " + N + " " + N); svg.innerHTML = h; svg.style.display = "";
-  }
   function show(i) {
     var n = S.frames.length; if (!n) { return; }
     S.i = ((i % n) + n) % n;
@@ -669,7 +654,6 @@
     $("label").textContent = f.label + "   (frame " + (S.i + 1) + " of " + n + ")";
     $("meta").textContent = f.meta || "";
     $("scrub").value = S.i;
-    drawTrack(f);
     drawCurve();
   }
   function stopPlay() { if (S.timer) { clearInterval(S.timer); } S.timer = null; S.playing = false; $("play").textContent = "Play"; }
@@ -740,7 +724,7 @@
 
   // ====== saved examples (pre-made frames shipped with the site) ======
   async function loadSaved(slug) {
-    S.token++; stopPlay(); S.track = null;
+    S.token++; stopPlay();
     try {
       var m = await (await fetch("data/" + slug + "/manifest.json", { cache: "no-cache" })).json();
       status("Loading saved frames...");
@@ -778,7 +762,6 @@
     $("scrub").addEventListener("input", function () { stopPlay(); show(Number($("scrub").value)); });
     $("speed").addEventListener("input", function () { if (S.playing) { startPlay(); } });
     ["bright", "contrast", "invert", "showx"].forEach(function (id) { $(id).addEventListener("input", applyFilter); });
-    $("showtrack").addEventListener("input", function () { if (S.frames.length) { show(S.i); } });
     $("proxy").addEventListener("change", function () { try { localStorage.setItem("spx_proxy", $("proxy").value.trim()); } catch (e) {} });
     $("loadSaved").addEventListener("click", function () { if ($("saved").value) { loadSaved($("saved").value); } });
     $("copy").addEventListener("click", function () {
