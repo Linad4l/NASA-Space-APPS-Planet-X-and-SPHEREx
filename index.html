@@ -250,7 +250,12 @@
   }
 
   // ====== name lookup (CDS Sesame) ======
+  function resetRunUI() {
+    $("go").disabled = false; $("go").textContent = "Make flipbook";
+    $("cancel").style.display = "none"; $("prog").style.display = "none";
+  }
   async function resolveName() {
+    S.token++; resetRunUI(); // stop any flipbook still being built, so the button is usable again
     var nm = $("name").value.trim();
     if (!nm) { status("Type an object name first.", "warn"); return; }
     var KNOWN = {"barnard's star":0,"barnards star":0,"wise 0855":1,"wise0855":1,"epsilon indi":2,"eps indi":2,"eps ind":2,"rw aur":3,"rw aurigae":3,"r dra":4,"r draconis":4};
@@ -454,7 +459,7 @@
       if (!(dec >= -90 && dec <= 90)) { throw new Error("Dec must be between -90 and 90 degrees."); }
     } catch (e) { status(e.message, "err"); return; }
     var pmra = Number($("pmra").value) || 0, pmdec = Number($("pmdec").value) || 0, epoch = Number($("epoch").value) || 2000;
-    $("go").disabled = true; $("cancel").style.display = ""; $("prog").style.display = "";
+    $("go").disabled = true; $("go").textContent = "Working..."; $("cancel").style.display = ""; $("prog").style.display = "";
     $("prog").value = 0; $("prog").max = 1;
     updateURL();
     try {
@@ -507,7 +512,7 @@
     } catch (e) {
       if (e.message !== "cancelled") { status(e.message, "err"); }
     } finally {
-      if (token === S.token) { $("go").disabled = false; $("cancel").style.display = "none"; $("prog").style.display = "none"; }
+      if (token === S.token) { resetRunUI(); }
     }
   }
 
@@ -687,7 +692,7 @@
       b.addEventListener("click", function () { loadExample(ex); }); $("examples").appendChild(b);
     });
     $("go").addEventListener("click", function () { run(); });
-    $("cancel").addEventListener("click", function () { S.token++; $("go").disabled = false; $("cancel").style.display = "none"; $("prog").style.display = "none"; status("Cancelled."); });
+    $("cancel").addEventListener("click", function () { S.token++; resetRunUI(); status("Cancelled."); });
     $("resolve").addEventListener("click", resolveName);
     ["ra", "dec", "name"].forEach(function (id) { $(id).addEventListener("keydown", function (e) { if (e.key === "Enter") { if (id === "name") { resolveName(); } else { run(); } } }); });
     $("play").addEventListener("click", function () { if (S.playing) { stopPlay(); } else { startPlay(); } });
