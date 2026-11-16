@@ -183,7 +183,7 @@
     <h2>What you are looking at</h2>
     <ul>
       <li><b>Sky stays fixed:</b> the picture does not follow any object. Stars stay in place and anything that moves drifts across the frame. Turn on "Show center marks" to see the exact center of the patch.</li>
-      <li><b>Yellow ring and dashed line:</b> for objects with a known motion (like WISE 0855 or Barnard's Star), the ring marks where the object should be in each frame and the line shows its path. Look for a real dot moving with the ring.</li>
+      <li><b>Yellow ring and dashed line:</b> for objects with a known motion (like WISE 0855 or Barnard's Star), the ring marks where the object should be in each frame and the dashed line shows its path. Look for a real dot moving with the ring.</li>
       <li><b>Chart under the picture:</b> brightness at the center over time. A real trend over months can mean a variable star.</li>
       <li><b>Dark blue pixels:</b> the exposure has no data there (each SPHEREx exposure covers a limited area; by default we skip exposures that are mostly empty). The core of a very bright star is also missing, because the detector saturates.</li>
       <li><b>Flagged pixels:</b> the share of pixels that carry a quality flag from SPHEREx. It is a hint to look closer, not a verdict. See the SPHEREx documentation for what each flag means.</li>
@@ -658,7 +658,6 @@
     var pts = S.frames.map(function (g) { return P(g.t); }), cur = P(f.t), r = Math.max(1.6, N * 0.04), h = "";
     var d = pts.map(function (p, k) { return (k ? "L" : "M") + (p[0] + 0.5).toFixed(2) + " " + (p[1] + 0.5).toFixed(2); }).join(" ");
     h += '<path d="' + d + '" fill="none" stroke="#ffcc66" stroke-width="1.5" stroke-dasharray="5 4" opacity=".7" vector-effect="non-scaling-stroke"/>';
-    pts.forEach(function (p) { h += '<circle cx="' + (p[0] + 0.5).toFixed(2) + '" cy="' + (p[1] + 0.5).toFixed(2) + '" r="' + (r * 0.18).toFixed(2) + '" fill="#ffcc66" opacity=".8"/>'; });
     h += '<circle cx="' + (cur[0] + 0.5).toFixed(2) + '" cy="' + (cur[1] + 0.5).toFixed(2) + '" r="' + r.toFixed(2) + '" fill="none" stroke="#ffcc66" stroke-width="2.5" vector-effect="non-scaling-stroke"/>';
     svg.setAttribute("viewBox", "0 0 " + N + " " + N); svg.innerHTML = h; svg.style.display = "";
   }
